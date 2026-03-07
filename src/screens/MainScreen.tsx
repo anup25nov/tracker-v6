@@ -209,11 +209,11 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
               <span className="text-xs sm:text-sm text-muted-foreground">/ {overall.total}</span>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground">{t("topicsCompleted")}</p>
-            {overall.percent > 0 && (
+            {/* {overall.percent > 0 && (
               <div className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold" style={{ color: "hsl(142 71% 45%)" }}>
                 <Flame size={12} /> {overall.percent >= 50 ? "🔥" : "📈"} {t("letsGo")}
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </motion.div>
