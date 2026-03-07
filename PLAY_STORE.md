@@ -6,28 +6,69 @@ The app is configured for a production Android build. Use this checklist for wha
 
 ## 1. Build and sign the app (your side)
 
-### Create an upload keystore (first time only)
+### 1. Create an upload keystore (first time only)
 
 Use your own store credentials. **Keep the keystore and passwords safe**; you need them for every future update.
 
 ```bash
+cd android
 keytool -genkey -v -keystore sscexamsathi-upload.keystore -alias sscexamsathi -keyalg RSA -keysize 2048 -validity 10000
 ```
 
 Store the `.keystore` file and passwords in a safe place (e.g. password manager). Do not commit them to git.
 
-### Build release AAB
+### 2. Configure release signing
+
+Play Store requires **all uploaded AABs to be signed** with your upload key. Do this once per machine:
+
+1. In the `android` folder, copy the example properties file:
+   ```bash
+   cp keystore.properties.example keystore.properties
+   ```
+2. Edit `android/keystore.properties` and set:
+   - `storePassword` – password for the keystore file
+   - `keyPassword` – password for the key alias
+   - Keep `storeFile=sscexamsathi-upload.keystore` and `keyAlias=sscexamsathi` unless you used different names.
+
+`keystore.properties` is in `.gitignore`; do not commit it.
+
+### 3. Build release AAB
 
 From the project root:
 
 ```bash
-npm run build
+npm run build:aab
+```
+
+Or step by step:
+
+```bash
+npm run build:android
 npx cap sync android
 cd android && ./gradlew bundleRelease
 ```
 
-The signed bundle is:  
-`android/app/build/outputs/bundle/release/app-release.aab`
+The **signed** bundle is:  
+`android/app/build/outputs/bundle/release/app-release.aab`  
+Upload this file in Play Console.
+
+### If you see "keystore password was incorrect"
+
+This means the values in `android/keystore.properties` don’t match your keystore:
+
+1. **Check the passwords** you use when creating the keystore. In `keytool -genkey` you set:
+   - A **keystore password** → use this for `storePassword` in `keystore.properties`
+   - A **key password** (often same as keystore) → use this for `keyPassword`
+
+2. **No extra spaces** – in `keystore.properties`, make sure there are no spaces around `=` and no spaces at the end of lines (e.g. `storePassword=YourPassword` not `storePassword = YourPassword `).
+
+3. **Verify the keystore** from the `android` folder:
+   ```bash
+   keytool -list -keystore sscexamsathi-upload.keystore
+   ```
+   Enter the keystore password. If it fails here, the password is wrong or the keystore file is different. If it works, use that same password for `storePassword` (and the key password you set for `keyPassword`).
+
+4. If you **forgot the password**, you cannot recover it. Create a new keystore (new file name) and use it for new apps; existing Play apps must keep using the original key.
 
 ### Sign the bundle (if not using Play App Signing)
 

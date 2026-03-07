@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android signing (keep secrets out of repo)
+android/keystore.properties
+android/*.keystore
