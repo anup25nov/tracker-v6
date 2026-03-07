@@ -1,15 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import AchievementPopup from "@/components/AchievementPopup";
 import MainScreen from "@/screens/MainScreen";
 import TopicsScreen from "@/screens/TopicsScreen";
 import ExamSelectScreen from "@/screens/ExamSelectScreen";
 import { useAppStore } from "@/store/useAppStore";
+import { logScreenView, logExamSelected } from "@/lib/firebase";
 
 const Index = () => {
   const selectedExamId = useAppStore((s) => s.selectedExamId);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [showExamSelect, setShowExamSelect] = useState(false);
+
+  useEffect(() => {
+    if (showExamSelect || !selectedExamId) {
+      logScreenView("exam_select");
+    }
+  }, [showExamSelect, selectedExamId]);
 
   if (!selectedExamId || showExamSelect) {
     return (
@@ -17,6 +24,7 @@ const Index = () => {
         onExamSelected={() => {
           setShowExamSelect(false);
           setSelectedSubject(null);
+          logExamSelected(useAppStore.getState().selectedExamId || "");
         }}
       />
     );

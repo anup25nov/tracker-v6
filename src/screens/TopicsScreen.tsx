@@ -3,6 +3,8 @@ import { ArrowLeft, Check, Trophy } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getSubjectColor } from "@/lib/subjectColors";
+import { logScreenView, logTopicToggled } from "@/lib/firebase";
+import { useEffect } from "react";
 
 interface TopicsScreenProps {
   subjectId: string;
@@ -16,6 +18,11 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
   const getSubjectProgress = useAppStore((s) => s.getSubjectProgress);
 
   const subject = syllabus.find((s) => s.id === subjectId);
+
+  useEffect(() => {
+    logScreenView(`topics_${subjectId}`);
+  }, [subjectId]);
+
   if (!subject) return null;
 
   const progress = getSubjectProgress(subjectId);
@@ -23,8 +30,14 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
   const color = getSubjectColor(subjectId);
   const isAllDone = progress === 100;
 
+  const handleToggle = (topicId: string) => {
+    const topic = subject.topics.find((t) => t.id === topicId);
+    toggleTopic(subjectId, topicId);
+    logTopicToggled(subjectId, topicId, !topic?.completed);
+  };
+
   return (
-    <div className="min-h-screen px-3 sm:px-4 pt-4 sm:pt-6 pb-24 max-w-lg mx-auto space-y-3 sm:space-y-4">
+    <div className="min-h-screen px-3 sm:px-4 pt-4 sm:pt-6 pb-8 max-w-lg mx-auto space-y-3 sm:space-y-4">
       {/* Hero Header */}
       <motion.div
         className="rounded-2xl sm:rounded-3xl p-4 sm:p-5 relative overflow-hidden"
@@ -119,9 +132,8 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: index * 0.025 }}
-            onClick={() => toggleTopic(subjectId, topic.id)}
+            onClick={() => handleToggle(topic.id)}
           >
-            {/* Checkbox */}
             <div
               className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center border-2 transition-all shrink-0"
               style={{
@@ -140,7 +152,6 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
               )}
             </div>
 
-            {/* Number */}
             <span
               className="text-[10px] sm:text-xs font-bold w-5 sm:w-6 shrink-0"
               style={{ color: topic.completed ? `hsl(${color})` : `hsl(var(--muted-foreground))` }}
@@ -148,7 +159,6 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
               {index + 1}
             </span>
 
-            {/* Topic name */}
             <span
               className={`text-xs sm:text-sm font-medium flex-1 text-left leading-snug ${
                 topic.completed ? "line-through opacity-70" : ""
@@ -158,7 +168,6 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
               {language === "hi" ? topic.nameHi : topic.name}
             </span>
 
-            {/* Completion dot */}
             {topic.completed && (
               <motion.div
                 className="w-2 h-2 rounded-full shrink-0"

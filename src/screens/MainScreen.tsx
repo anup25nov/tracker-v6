@@ -6,14 +6,15 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
-import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Flame } from "lucide-react";
+import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Flame, Sun, Moon, ChevronDown } from "lucide-react";
+import { logScreenView, logExamSelected } from "@/lib/firebase";
+import { useEffect } from "react";
 
 interface MainScreenProps {
   onSelectSubject: (subjectId: string) => void;
   onChangeExam: () => void;
 }
 
-// Proper brand SVG icons
 const TelegramIcon = () => (
   <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
     <circle cx="12" cy="12" r="12" fill="#2AABEE" />
@@ -81,11 +82,28 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
   const setLanguage = useAppStore((s) => s.setLanguage);
   const resetProgress = useAppStore((s) => s.resetProgress);
   const [showReset, setShowReset] = useState(false);
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
 
   const exam = allExams.find((e) => e.id === selectedExamId);
   const overall = getOverallProgress();
   const color = exam?.color || "217 91% 60%";
   const totalTopics = syllabus.reduce((a, s) => a + s.topics.length, 0);
+
+  useEffect(() => {
+    logScreenView("main_screen");
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -121,46 +139,48 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
   ];
 
   const socialItems = [
-    { icon: <TelegramIcon />, label: t("telegram"), onClick: () => {}, bg: "#2AABEE" },
-    { icon: <YouTubeIcon />, label: t("youtube"), onClick: () => {}, bg: "#FF0000" },
-    { icon: <InstagramIcon />, label: t("instagram"), onClick: () => {}, bg: "#E1306C" },
+    { icon: <TelegramIcon />, label: t("telegram"), onClick: () => {} },
+    { icon: <YouTubeIcon />, label: t("youtube"), onClick: () => {} },
+    { icon: <InstagramIcon />, label: t("instagram"), onClick: () => {} },
   ];
 
   return (
-    <div className="min-h-screen px-3 sm:px-4 pt-8 sm:pt-10 pb-8 max-w-lg mx-auto space-y-4 sm:space-y-5">
-      {/* Header with Exam Badge */}
+    <div className="min-h-screen px-3 sm:px-4 pt-6 sm:pt-8 pb-8 max-w-lg mx-auto space-y-4 sm:space-y-5">
+      {/* Top Bar: Exam selector + Theme toggle */}
       <motion.div
-        className="rounded-2xl sm:rounded-3xl p-5 sm:p-6 relative overflow-hidden"
-        style={{
-          background: `linear-gradient(135deg, hsl(${color}), hsl(${color} / 0.75))`,
-        }}
-        initial={{ opacity: 0, y: 20 }}
+        className="flex items-center justify-between"
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20" style={{ background: "white" }} />
-        <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-10" style={{ background: "white" }} />
+        <button
+          onClick={onChangeExam}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl active:scale-95 transition-transform"
+          style={{
+            background: `hsl(${color} / 0.1)`,
+            border: `1px solid hsl(${color} / 0.25)`,
+          }}
+        >
+          <span className="text-lg">{exam?.icon || "📚"}</span>
+          <span className="text-xs sm:text-sm font-bold" style={{ color: `hsl(${color})` }}>
+            {exam ? (language === "hi" ? exam.nameHi : exam.name) : t("selectExam")}
+          </span>
+          <ChevronDown size={14} style={{ color: `hsl(${color})` }} />
+        </button>
 
-        <div className="relative flex items-center gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl sm:text-4xl shadow-lg">
-            {exam?.icon || "🎯"}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-white">
-              {exam ? (language === "hi" ? exam.nameHi : exam.name) : t("selectExam")}
-            </h1>
-            <p className="text-[10px] sm:text-xs text-white/70 mt-1">
-              {syllabus.length} {t("subjects")} • {totalTopics} {t("topics")}
-            </p>
-          </div>
-        </div>
+        <button
+          onClick={toggleTheme}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-secondary active:scale-90 transition-transform"
+        >
+          {isDark ? <Sun size={18} className="text-warning" /> : <Moon size={18} className="text-muted-foreground" />}
+        </button>
       </motion.div>
 
       {/* Overall Progress */}
       <motion.div
         className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6"
         style={{
-          background: `linear-gradient(135deg, hsl(142 71% 45% / 0.18), hsl(142 71% 45% / 0.05))`,
-          border: `1px solid hsl(142 71% 45% / 0.25)`,
+          background: `linear-gradient(135deg, hsl(142 71% 45% / 0.15), hsl(142 71% 45% / 0.04))`,
+          border: `1px solid hsl(142 71% 45% / 0.2)`,
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -194,7 +214,9 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
       >
         <div className="flex items-center gap-1.5 mb-3">
           <BookOpen size={14} className="text-primary" />
-          <h2 className="text-xs sm:text-sm font-bold text-foreground">{t("subjects")}</h2>
+          <h2 className="text-xs sm:text-sm font-bold text-foreground">
+            {t("subjects")} ({syllabus.length})
+          </h2>
         </div>
 
         <div className="space-y-2.5 sm:space-y-3">
@@ -208,9 +230,8 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
             return (
               <motion.button
                 key={subject.id}
-                className="w-full rounded-xl sm:rounded-2xl p-3.5 sm:p-4 text-left active:scale-[0.98] transition-transform overflow-hidden relative"
+                className="w-full rounded-xl sm:rounded-2xl p-3.5 sm:p-4 text-left active:scale-[0.98] transition-transform overflow-hidden relative bg-card"
                 style={{
-                  background: `hsl(var(--card))`,
                   border: `1px solid hsl(${subjectColor} / 0.25)`,
                 }}
                 initial={{ opacity: 0, x: -20 }}
