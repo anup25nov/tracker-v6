@@ -291,59 +291,105 @@ export const allExams: Exam[] = [
       },
       
       {
-      id:"ga",
-      name:"General Awareness",
-      nameHi:"सामान्य जागरूकता",
-      icon:"🌍",
-      topics:[
+        id:"ga",
+        name:"General Awareness",
+        nameHi:"सामान्य जागरूकता",
+        icon:"🌍",
+        topics:[
       
-      {
-      id:"g1",
-      name:"Static GK",
-      nameHi:"स्थैतिक सामान्य ज्ञान",
-      completed:false,
-      subtopics:[
-        { id:"g1-1", name:"Indian History", nameHi:"भारतीय इतिहास", completed:false },
-        { id:"g1-2", name:"Indian Geography", nameHi:"भारतीय भूगोल", completed:false },
-        { id:"g1-3", name:"Indian Polity", nameHi:"भारतीय राजव्यवस्था", completed:false },
-        { id:"g1-4", name:"Indian Economy", nameHi:"भारतीय अर्थव्यवस्था", completed:false },
-        { id:"g1-5", name:"Indian Culture", nameHi:"भारतीय संस्कृति", completed:false },
-        { id:"g1-6", name:"Important Days", nameHi:"महत्वपूर्ण दिवस", completed:false },
-        { id:"g1-7", name:"Books & Authors", nameHi:"पुस्तकें और लेखक", completed:false },
-        { id:"g1-8", name:"Awards & Honors", nameHi:"पुरस्कार और सम्मान", completed:false },
-        { id:"g1-9", name:"Sports", nameHi:"खेल", completed:false },
-        { id:"g1-10", name:"Art & Culture", nameHi:"कला और संस्कृति", completed:false }
-      ]
-      },
+        {
+          id:"g1",
+          name:"History",
+          nameHi:"इतिहास",
+          completed:false,
+          subtopics:[
+            { id:"g1-1", name:"Ancient History", nameHi:"प्राचीन इतिहास", completed:false },
+            { id:"g1-2", name:"Medieval History", nameHi:"मध्यकालीन इतिहास", completed:false },
+            { id:"g1-3", name:"Modern History", nameHi:"आधुनिक इतिहास", completed:false },
+            { id:"g1-4", name:"Indian Culture", nameHi:"भारतीय संस्कृति", completed:false }
+          ]
+        },
       
-      {
-      id:"g2",
-      name:"Science",
-      nameHi:"विज्ञान",
-      completed:false,
-      subtopics:[
-        { id:"g2-1", name:"Physics", nameHi:"भौतिक विज्ञान", completed:false },
-        { id:"g2-2", name:"Chemistry", nameHi:"रसायन विज्ञान", completed:false },
-        { id:"g2-3", name:"Biology", nameHi:"जीव विज्ञान", completed:false }
-      ]
-      },
+        {
+          id:"g2",
+          name:"Geography",
+          nameHi:"भूगोल",
+          completed:false,
+          subtopics:[
+            { id:"g2-1", name:"Physical Geography", nameHi:"भौतिक भूगोल", completed:false },
+            { id:"g2-2", name:"Indian Geography", nameHi:"भारतीय भूगोल", completed:false },
+            { id:"g2-3", name:"World Geography", nameHi:"विश्व भूगोल", completed:false },
+            { id:"g2-4", name:"Environment & Ecology", nameHi:"पर्यावरण और पारिस्थितिकी", completed:false }
+          ]
+        },
       
-      {
-      id:"g3",
-      name:"Miscellaneous",
-      nameHi:"अन्य",
-      completed:false,
-      subtopics:[
-        { id:"g3-1", name:"Inventions & Discoveries", nameHi:"आविष्कार और खोज", completed:false },
-        { id:"g3-2", name:"Scientific Research", nameHi:"वैज्ञानिक अनुसंधान", completed:false },
-        { id:"g3-3", name:"Environment & Ecology", nameHi:"पर्यावरण और पारिस्थितिकी", completed:false },
-        { id:"g3-4", name:"Current Affairs", nameHi:"करंट अफेयर्स", completed:false }
-      ]
+        {
+          id:"g3",
+          name:"Polity",
+          nameHi:"राजव्यवस्था",
+          completed:false,
+          subtopics:[
+            { id:"g3-1", name:"Indian Constitution", nameHi:"भारतीय संविधान", completed:false },
+            { id:"g3-2", name:"Central Government", nameHi:"केंद्रीय सरकार", completed:false },
+            { id:"g3-3", name:"State Government", nameHi:"राज्य सरकार", completed:false },
+            { id:"g3-4", name:"Judiciary", nameHi:"न्यायपालिका", completed:false }
+          ]
+        },
+      
+        {
+          id:"g4",
+          name:"Economy",
+          nameHi:"अर्थव्यवस्था",
+          completed:false,
+          subtopics:[
+            { id:"g4-1", name:"Basic Economics", nameHi:"मूल अर्थशास्त्र", completed:false },
+            { id:"g4-2", name:"Banking System", nameHi:"बैंकिंग प्रणाली", completed:false },
+            { id:"g4-3", name:"Budget & Economic Survey", nameHi:"बजट और आर्थिक सर्वेक्षण", completed:false },
+            { id:"g4-4", name:"International Organizations", nameHi:"अंतरराष्ट्रीय संगठन", completed:false }
+          ]
+        },
+      
+        {
+          id:"g5",
+          name:"Science",
+          nameHi:"विज्ञान",
+          completed:false,
+          subtopics:[
+            { id:"g5-1", name:"Physics", nameHi:"भौतिक विज्ञान", completed:false },
+            { id:"g5-2", name:"Chemistry", nameHi:"रसायन विज्ञान", completed:false },
+            { id:"g5-3", name:"Biology", nameHi:"जीव विज्ञान", completed:false }
+          ]
+        },
+      
+        {
+          id:"g6",
+          name:"Static GK",
+          nameHi:"स्थैतिक सामान्य ज्ञान",
+          completed:false,
+          subtopics:[
+            { id:"g6-1", name:"Important Days", nameHi:"महत्वपूर्ण दिवस", completed:false },
+            { id:"g6-2", name:"Books & Authors", nameHi:"पुस्तकें और लेखक", completed:false },
+            { id:"g6-3", name:"Awards & Honors", nameHi:"पुरस्कार और सम्मान", completed:false },
+            { id:"g6-4", name:"Sports", nameHi:"खेल", completed:false },
+            { id:"g6-5", name:"Art & Culture", nameHi:"कला और संस्कृति", completed:false }
+          ]
+        },
+      
+        {
+          id:"g7",
+          name:"Current Affairs",
+          nameHi:"करंट अफेयर्स",
+          completed:false,
+          subtopics:[
+            { id:"g7-1", name:"National News", nameHi:"राष्ट्रीय समाचार", completed:false },
+            { id:"g7-2", name:"International News", nameHi:"अंतरराष्ट्रीय समाचार", completed:false },
+            { id:"g7-3", name:"Government Schemes", nameHi:"सरकारी योजनाएँ", completed:false },
+            { id:"g7-4", name:"People in News", nameHi:"समाचारों में व्यक्ति", completed:false }
+          ]
+        }
+      
+        ]
       }
-      
-      ]
-      }
-      
       ],
   },
   {
