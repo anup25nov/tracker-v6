@@ -114,9 +114,24 @@ const ProfileScreen = ({ onChangeExam }: ProfileScreenProps) => {
   ];
 
   const socialItems = [
-    { icon: <TelegramIcon />, label: t("telegram"), onClick: () => {}, bg: "#2AABEE" },
-    { icon: <YouTubeIcon />, label: t("youtube"), onClick: () => {}, bg: "#FF0000" },
-    { icon: <InstagramIcon />, label: t("instagram"), onClick: () => {}, bg: "#E1306C" },
+    {
+      icon: <TelegramIcon />,
+      label: t("telegram"),
+      onClick: () => window.open("https://t.me/warriorsiq", "_blank"),
+      bg: "#2AABEE",
+    },
+    {
+      icon: <YouTubeIcon />,
+      label: t("youtube"),
+      onClick: () => window.open("https://youtube.com/@mishra_maths", "_blank"),
+      bg: "#FF0000",
+    },
+    {
+      icon: <InstagramIcon />,
+      label: t("instagram"),
+      onClick: () => window.open("https://www.instagram.com/anupmishra_8", "_blank"),
+      bg: "#E1306C",
+    },
   ];
 
   return (

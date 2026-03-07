@@ -139,9 +139,21 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
   ];
 
   const socialItems = [
-    { icon: <TelegramIcon />, label: t("telegram"), onClick: () => {} },
-    { icon: <YouTubeIcon />, label: t("youtube"), onClick: () => {} },
-    { icon: <InstagramIcon />, label: t("instagram"), onClick: () => {} },
+    {
+      icon: <TelegramIcon />,
+      label: t("telegram"),
+      onClick: () => window.open("https://t.me/warriorsiq", "_blank"),
+    },
+    {
+      icon: <YouTubeIcon />,
+      label: t("youtube"),
+      onClick: () => window.open("https://youtube.com/@mishra_maths", "_blank"),
+    },
+    {
+      icon: <InstagramIcon />,
+      label: t("instagram"),
+      onClick: () => window.open("https://www.instagram.com/anupmishra_8", "_blank"),
+    },
   ];
 
   return (

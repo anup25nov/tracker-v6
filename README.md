@@ -60,6 +60,12 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Social links
+
+- Telegram: `https://t.me/warriorsiq`
+- YouTube: `https://youtube.com/@mishra_maths`
+- Instagram: `https://www.instagram.com/anupmishra_8`
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
@@ -71,3 +77,28 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+
+INTALLING APP IN THE PHONE USING CABLE
+step 1 
+cd /Users/anupmishra/Desktop/repos/tracker-v5
+
+# Make sure web build is up to date
+npm run build
+
+# Regenerate all native config, including capacitor.settings.gradle
+npx cap sync android
+
+step 2 
+ls android/capacitor.settings.gradle
+
+
+step 3
+cd android
+./gradlew assembleDebug
+
+
+step 4
+cd /Users/anupmishra/Desktop/repos/tracker-v5/android
+
+adb install -r app/build/outputs/apk/debug/app-debug.apk
