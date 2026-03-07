@@ -6,10 +6,23 @@ import HomeScreen from "@/screens/HomeScreen";
 import SubjectsScreen from "@/screens/SubjectsScreen";
 import TopicsScreen from "@/screens/TopicsScreen";
 import ProfileScreen from "@/screens/ProfileScreen";
+import ExamSelectScreen from "@/screens/ExamSelectScreen";
+import { useAppStore } from "@/store/useAppStore";
 
 const Index = () => {
+  const selectedExamId = useAppStore((s) => s.selectedExamId);
   const [activeTab, setActiveTab] = useState("home");
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [showExamSelect, setShowExamSelect] = useState(false);
+
+  // Show exam select if no exam chosen
+  if (!selectedExamId || showExamSelect) {
+    return (
+      <ExamSelectScreen
+        key="exam-select"
+      />
+    );
+  }
 
   const handleNavigate = (target: string) => {
     if (target.startsWith("topics-")) {
@@ -24,6 +37,10 @@ const Index = () => {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     setSelectedSubject(null);
+  };
+
+  const handleChangeExam = () => {
+    setShowExamSelect(true);
   };
 
   const renderScreen = () => {
@@ -52,7 +69,7 @@ const Index = () => {
           />
         );
       case "profile":
-        return <ProfileScreen />;
+        return <ProfileScreen onChangeExam={handleChangeExam} />;
       default:
         return <HomeScreen onNavigate={handleNavigate} />;
     }

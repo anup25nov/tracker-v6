@@ -1,44 +1,46 @@
 import { motion } from "framer-motion";
-import { Share2, MessageCircle, Youtube, Instagram, Globe, RotateCcw } from "lucide-react";
+import { Share2, MessageCircle, Youtube, Instagram, Globe, RotateCcw, RefreshCw } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
+import { allExams } from "@/data/syllabus";
 import { useState } from "react";
 
-const ProfileScreen = () => {
+interface ProfileScreenProps {
+  onChangeExam: () => void;
+}
+
+const ProfileScreen = ({ onChangeExam }: ProfileScreenProps) => {
   const { t, language } = useTranslation();
   const setLanguage = useAppStore((s) => s.setLanguage);
   const resetProgress = useAppStore((s) => s.resetProgress);
   const getOverallProgress = useAppStore((s) => s.getOverallProgress);
+  const selectedExamId = useAppStore((s) => s.selectedExamId);
   const [showReset, setShowReset] = useState(false);
 
   const overall = getOverallProgress();
+  const exam = allExams.find((e) => e.id === selectedExamId);
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "SSC CGL Tracker",
-        text: "Track your SSC CGL syllabus easily with this app.",
+        title: "SSC Syllabus Tracker",
+        text: "Track your SSC syllabus easily with this app.",
         url: window.location.href,
       });
     }
   };
 
   const menuItems = [
+    { icon: RefreshCw, label: t("changeExam"), onClick: onChangeExam, trailing: exam ? (language === "hi" ? exam.nameHi : exam.name) : "" },
+    { icon: Globe, label: t("changeLanguage"), onClick: () => setLanguage(language === "en" ? "hi" : "en"), trailing: language === "en" ? "हिंदी" : "English" },
     { icon: Share2, label: t("shareApp"), onClick: handleShare },
     { icon: MessageCircle, label: t("telegram"), onClick: () => {} },
     { icon: Youtube, label: t("youtube"), onClick: () => {} },
     { icon: Instagram, label: t("instagram"), onClick: () => {} },
-    {
-      icon: Globe,
-      label: t("changeLanguage"),
-      onClick: () => setLanguage(language === "en" ? "hi" : "en"),
-      trailing: language === "en" ? "हिंदी" : "English",
-    },
   ];
 
   return (
     <div className="px-4 pt-12 pb-24 max-w-md mx-auto space-y-6">
-      {/* Profile Card */}
       <motion.div
         className="glass-card p-6 flex flex-col items-center gap-3"
         initial={{ opacity: 0, y: 20 }}
@@ -48,12 +50,19 @@ const ProfileScreen = () => {
           🎯
         </div>
         <h2 className="text-xl font-bold text-foreground">{t("sscAspirant")}</h2>
+        {exam && (
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ background: `hsl(${exam.color} / 0.15)`, color: `hsl(${exam.color})` }}
+          >
+            {exam.icon} {language === "hi" ? exam.nameHi : exam.name}
+          </div>
+        )}
         <p className="text-sm text-muted-foreground">
           {overall.percent}% {t("completed")} • {overall.completed}/{overall.total} {t("topicsCompleted")}
         </p>
       </motion.div>
 
-      {/* Menu Items */}
       <motion.div
         className="glass-card overflow-hidden divide-y divide-border"
         initial={{ opacity: 0, y: 20 }}
@@ -67,22 +76,13 @@ const ProfileScreen = () => {
             onClick={item.onClick}
           >
             <item.icon size={20} className="text-primary" />
-            <span className="text-sm font-medium text-foreground flex-1 text-left">
-              {item.label}
-            </span>
-            {item.trailing && (
-              <span className="text-sm text-primary font-medium">{item.trailing}</span>
-            )}
+            <span className="text-sm font-medium text-foreground flex-1 text-left">{item.label}</span>
+            {item.trailing && <span className="text-sm text-primary font-medium">{item.trailing}</span>}
           </button>
         ))}
       </motion.div>
 
-      {/* Reset */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         {!showReset ? (
           <button
             className="w-full glass-card p-4 flex items-center gap-4 active:bg-destructive/10 transition-colors"
@@ -103,10 +103,7 @@ const ProfileScreen = () => {
               </button>
               <button
                 className="flex-1 bg-destructive rounded-xl p-3 text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
-                onClick={() => {
-                  resetProgress();
-                  setShowReset(false);
-                }}
+                onClick={() => { resetProgress(); setShowReset(false); }}
               >
                 {t("reset")}
               </button>
