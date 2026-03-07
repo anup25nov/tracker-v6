@@ -10,8 +10,8 @@ interface HomeScreenProps {
   onNavigate: (tab: string) => void;
 }
 
-const MiniDonut = ({ percent, color, size = 52 }: { percent: number; color: string; size?: number }) => {
-  const strokeWidth = 5;
+const MiniDonut = ({ percent, color, size = 48 }: { percent: number; color: string; size?: number }) => {
+  const strokeWidth = 4.5;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (percent / 100) * circumference;
@@ -44,21 +44,21 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
   const firstIncomplete = getFirstIncompleteSubject();
 
   return (
-    <div className="px-4 pt-10 pb-24 max-w-md mx-auto space-y-5">
-      {/* Header with exam selector */}
+    <div className="min-h-screen px-3 sm:px-4 pt-8 sm:pt-10 pb-24 max-w-lg mx-auto space-y-4 sm:space-y-5">
+      {/* Header */}
       <motion.div
-        className="flex items-center justify-between"
+        className="flex items-center justify-between gap-2"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div>
-          <h1 className="text-xl font-bold text-foreground">{t("greeting")}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{t("greetingSub")}</p>
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">{t("greeting")}</h1>
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{t("greetingSub")}</p>
         </div>
         {exam && (
           <button
             onClick={() => onNavigate("profile")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold active:scale-95 transition-transform shrink-0"
             style={{
               background: `hsl(${exam.color} / 0.15)`,
               color: `hsl(${exam.color})`,
@@ -70,9 +70,9 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         )}
       </motion.div>
 
-      {/* Hero Progress Card */}
+      {/* Hero Progress */}
       <motion.div
-        className="relative overflow-hidden rounded-3xl p-6"
+        className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6"
         style={{
           background: `linear-gradient(135deg, hsl(${exam?.color || "217 91% 60%"} / 0.15), hsl(${exam?.color || "217 91% 60%"} / 0.05))`,
           border: `1px solid hsl(${exam?.color || "217 91% 60%"} / 0.2)`,
@@ -81,20 +81,20 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <div className="flex items-center gap-5">
-          <ProgressRing percent={overall.percent} size={110} strokeWidth={9} />
-          <div className="flex-1 space-y-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <ProgressRing percent={overall.percent} size={95} strokeWidth={8} />
+          <div className="flex-1 space-y-1.5 sm:space-y-2">
+            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {t("overallProgress")}
             </p>
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-extrabold text-foreground">{overall.completed}</span>
-              <span className="text-sm text-muted-foreground">/ {overall.total}</span>
+              <span className="text-2xl sm:text-3xl font-extrabold text-foreground">{overall.completed}</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">/ {overall.total}</span>
             </div>
-            <p className="text-xs text-muted-foreground">{t("topicsCompleted")}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{t("topicsCompleted")}</p>
             {overall.percent > 0 && (
-              <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: `hsl(${exam?.color || "217 91% 60%"})` }}>
-                <Flame size={14} /> {overall.percent >= 50 ? "🔥" : "📈"} {t("letsGo")}
+              <div className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold" style={{ color: `hsl(${exam?.color || "217 91% 60%"})` }}>
+                <Flame size={12} /> {overall.percent >= 50 ? "🔥" : "📈"} {t("letsGo")}
               </div>
             )}
           </div>
@@ -104,7 +104,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
       {/* Continue Studying */}
       {firstIncomplete && (
         <motion.button
-          className="w-full rounded-2xl p-4 flex items-center gap-3 active:scale-[0.97] transition-transform"
+          className="w-full rounded-2xl p-3.5 sm:p-4 flex items-center gap-3 active:scale-[0.97] transition-transform"
           style={{
             background: `linear-gradient(135deg, hsl(${getSubjectColor(firstIncomplete.id)}), hsl(${getSubjectColor(firstIncomplete.id)} / 0.8))`,
           }}
@@ -113,47 +113,44 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
           transition={{ delay: 0.2 }}
           onClick={() => onNavigate(`topics-${firstIncomplete.id}`)}
         >
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg sm:text-xl">
             {firstIncomplete.icon}
           </div>
-          <div className="flex-1 text-left">
-            <p className="text-sm font-bold text-white">{t("continueStudying")}</p>
-            <p className="text-xs text-white/70">
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-xs sm:text-sm font-bold text-white">{t("continueStudying")}</p>
+            <p className="text-[10px] sm:text-xs text-white/70 truncate">
               {language === "hi" ? firstIncomplete.nameHi : firstIncomplete.name}
             </p>
           </div>
-          <ChevronRight size={20} className="text-white/80" />
+          <ChevronRight size={18} className="text-white/80 shrink-0" />
         </motion.button>
       )}
 
-      {/* Subject Cards - 2x2 Grid with Donut Charts */}
+      {/* Subject Cards Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-            <Zap size={16} className="text-warning" /> {t("subjectProgress")}
+          <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
+            <Zap size={14} className="text-warning" /> {t("subjectProgress")}
           </h3>
-          <button
-            onClick={() => onNavigate("subjects")}
-            className="text-xs font-medium text-primary"
-          >
+          <button onClick={() => onNavigate("subjects")} className="text-[10px] sm:text-xs font-medium text-primary">
             {t("viewSubjects")} →
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
           {syllabus.map((subject, index) => {
             const progress = getSubjectProgress(subject.id);
             const color = getSubjectColor(subject.id);
-            const completed = subject.topics.filter((t) => t.completed).length;
+            const comp = subject.topics.filter((t) => t.completed).length;
 
             return (
               <motion.button
                 key={subject.id}
-                className="relative overflow-hidden rounded-2xl p-4 text-left active:scale-[0.96] transition-transform"
+                className="relative overflow-hidden rounded-xl sm:rounded-2xl p-3 sm:p-4 text-left active:scale-[0.96] transition-transform"
                 style={{
                   background: `linear-gradient(145deg, hsl(${color} / 0.12), hsl(${color} / 0.04))`,
                   border: `1px solid hsl(${color} / 0.2)`,
@@ -163,17 +160,17 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
                 transition={{ duration: 0.3, delay: 0.35 + index * 0.08 }}
                 onClick={() => onNavigate(`topics-${subject.id}`)}
               >
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-2xl">{subject.icon}</span>
-                  <MiniDonut percent={progress} color={color} size={44} />
+                <div className="flex justify-between items-start mb-1.5 sm:mb-2">
+                  <span className="text-xl sm:text-2xl">{subject.icon}</span>
+                  <MiniDonut percent={progress} color={color} size={40} />
                 </div>
-                <p className="text-xs font-bold text-foreground leading-tight mb-1">
+                <p className="text-[11px] sm:text-xs font-bold text-foreground leading-tight mb-0.5 sm:mb-1 truncate">
                   {language === "hi" ? subject.nameHi : subject.name}
                 </p>
-                <p className="text-[10px] text-muted-foreground">
-                  {completed}/{subject.topics.length} {t("completed")}
+                <p className="text-[9px] sm:text-[10px] text-muted-foreground">
+                  {comp}/{subject.topics.length} {t("completed")}
                 </p>
-                <div className="mt-2 w-full h-1.5 rounded-full bg-secondary overflow-hidden">
+                <div className="mt-1.5 sm:mt-2 w-full h-1 sm:h-1.5 rounded-full bg-secondary overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
                     style={{ background: `hsl(${color})` }}

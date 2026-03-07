@@ -11,20 +11,23 @@ const ProgressRing = ({ percent, size = 120, strokeWidth = 8 }: ProgressRingProp
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (percent / 100) * circumference;
 
+  // Responsive: clamp size for very small screens
+  const displaySize = size;
+
   return (
-    <div className="relative inline-flex items-center justify-center">
-      <svg width={size} height={size} className="-rotate-90">
+    <div className="relative inline-flex items-center justify-center shrink-0">
+      <svg width={displaySize} height={displaySize} className="-rotate-90">
         <circle
-          cx={size / 2}
-          cy={size / 2}
+          cx={displaySize / 2}
+          cy={displaySize / 2}
           r={radius}
           fill="none"
           stroke="hsl(var(--progress-track))"
           strokeWidth={strokeWidth}
         />
         <motion.circle
-          cx={size / 2}
-          cy={size / 2}
+          cx={displaySize / 2}
+          cy={displaySize / 2}
           r={radius}
           fill="none"
           stroke="hsl(var(--primary))"
@@ -38,7 +41,7 @@ const ProgressRing = ({ percent, size = 120, strokeWidth = 8 }: ProgressRingProp
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.span
-          className="text-2xl font-bold text-foreground"
+          className="text-lg sm:text-2xl font-bold text-foreground"
           key={percent}
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
