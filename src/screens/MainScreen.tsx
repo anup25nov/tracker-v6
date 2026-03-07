@@ -79,6 +79,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
   const syllabus = useAppStore((s) => s.syllabus);
   const selectedExamId = useAppStore((s) => s.selectedExamId);
   const getSubjectProgress = useAppStore((s) => s.getSubjectProgress);
+  const getSubjectUnits = useAppStore((s) => s.getSubjectUnits);
   const getOverallProgress = useAppStore((s) => s.getOverallProgress);
   const setLanguage = useAppStore((s) => s.setLanguage);
   const resetProgress = useAppStore((s) => s.resetProgress);
@@ -235,8 +236,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
         <div className="space-y-2.5 sm:space-y-3">
           {syllabus.map((subject, index) => {
             const progress = getSubjectProgress(subject.id);
-            const completed = subject.topics.filter((tp) => tp.completed).length;
-            const total = subject.topics.length;
+            const units = getSubjectUnits(subject.id);
             const subjectColor = getSubjectColor(subject.id);
             const isComplete = progress === 100;
 
@@ -269,7 +269,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
                       {isComplete && <CheckCircle2 size={14} className="text-success shrink-0" />}
                     </div>
                     <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                      {completed} {t("of")} {total} {t("topicsCompleted")}
+                      {units.completed} {t("of")} {units.total} {t("topicsCompleted")}
                     </p>
                     <div className="mt-1.5 sm:mt-2">
                       <ProgressBar percent={progress} height={5} />

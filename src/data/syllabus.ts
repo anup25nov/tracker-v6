@@ -149,11 +149,11 @@ export const allExams: Exam[] = [
       nameHi:"आंकड़ों की व्याख्या",
       completed:false,
       subtopics:[
-      { id:"q6-1", name:"Table", nameHi:"तालिका", completed:false },
-      { id:"q6-2", name:"Bar Graph", nameHi:"बार ग्राफ", completed:false },
-      { id:"q6-3", name:"Pie Chart", nameHi:"पाई चार्ट", completed:false },
-      { id:"q6-4", name:"Line Graph", nameHi:"रेखा ग्राफ", completed:false },
-      { id:"q6-5", name:"Mixed Graphs", nameHi:"मिश्रित ग्राफ", completed:false }
+        { id:"q6-1", name:"Table", nameHi:"तालिका", completed:false },
+        { id:"q6-2", name:"Bar Graph", nameHi:"बार ग्राफ", completed:false },
+        { id:"q6-3", name:"Pie Chart", nameHi:"पाई चार्ट", completed:false },
+        { id:"q6-4", name:"Line Graph", nameHi:"रेखा ग्राफ", completed:false },
+        { id:"q6-5", name:"Mixed Graphs", nameHi:"मिश्रित ग्राफ", completed:false }
       ]
       }
       
@@ -173,21 +173,21 @@ export const allExams: Exam[] = [
       nameHi:"मौखिक तर्क",
       completed:false,
       subtopics:[
-      { id:"r1-1", name:"Analogy", nameHi:"सादृश्यता", completed:false },
-      { id:"r1-2", name:"Classification", nameHi:"वर्गीकरण", completed:false },
-      { id:"r1-3", name:"Coding Decoding", nameHi:"कोडिंग डिकोडिंग", completed:false },
-      { id:"r1-4", name:"Alphabet Series", nameHi:"वर्णमाला श्रृंखला", completed:false },
-      { id:"r1-5", name:"Number Series", nameHi:"संख्या श्रृंखला", completed:false },
-      { id:"r1-6", name:"Word Formation", nameHi:"शब्द निर्माण", completed:false },
-      { id:"r1-7", name:"Blood Relations", nameHi:"रक्त संबंध", completed:false },
-      { id:"r1-8", name:"Direction Sense", nameHi:"दिशा परीक्षण", completed:false },
-      { id:"r1-9", name:"Order & Ranking", nameHi:"क्रम और रैंकिंग", completed:false },
-      { id:"r1-10", name:"Syllogism", nameHi:"न्याय निगमन", completed:false },
-      { id:"r1-11", name:"Statement & Conclusion", nameHi:"कथन और निष्कर्ष", completed:false },
-      { id:"r1-12", name:"Statement & Assumptions", nameHi:"कथन और मान्यता", completed:false },
-      { id:"r1-13", name:"Statement & Arguments", nameHi:"कथन और तर्क", completed:false },
-      { id:"r1-14", name:"Cause & Effect", nameHi:"कारण और प्रभाव", completed:false },
-      { id:"r1-15", name:"Decision Making", nameHi:"निर्णय लेना", completed:false }
+        { id:"r1-1", name:"Analogy", nameHi:"सादृश्यता", completed:false },
+        { id:"r1-2", name:"Classification", nameHi:"वर्गीकरण", completed:false },
+        { id:"r1-3", name:"Coding Decoding", nameHi:"कोडिंग डिकोडिंग", completed:false },
+        { id:"r1-4", name:"Alphabet Series", nameHi:"वर्णमाला श्रृंखला", completed:false },
+        { id:"r1-5", name:"Number Series", nameHi:"संख्या श्रृंखला", completed:false },
+        { id:"r1-6", name:"Word Formation", nameHi:"शब्द निर्माण", completed:false },
+        { id:"r1-7", name:"Blood Relations", nameHi:"रक्त संबंध", completed:false },
+        { id:"r1-8", name:"Direction Sense", nameHi:"दिशा परीक्षण", completed:false },
+        { id:"r1-9", name:"Order & Ranking", nameHi:"क्रम और रैंकिंग", completed:false },
+        { id:"r1-10", name:"Syllogism", nameHi:"न्याय निगमन", completed:false },
+        { id:"r1-11", name:"Statement & Conclusion", nameHi:"कथन और निष्कर्ष", completed:false },
+        { id:"r1-12", name:"Statement & Assumptions", nameHi:"कथन और मान्यता", completed:false },
+        { id:"r1-13", name:"Statement & Arguments", nameHi:"कथन और तर्क", completed:false },
+        { id:"r1-14", name:"Cause & Effect", nameHi:"कारण और प्रभाव", completed:false },
+        { id:"r1-15", name:"Decision Making", nameHi:"निर्णय लेना", completed:false }
       ]
       },
       
@@ -197,10 +197,10 @@ export const allExams: Exam[] = [
       nameHi:"तार्किक गणितीय तर्क",
       completed:false,
       subtopics:[
-      { id:"r2-1", name:"Venn Diagrams", nameHi:"वेन आरेख", completed:false },
-      { id:"r2-2", name:"Mathematical Operations", nameHi:"गणितीय संक्रियाएँ", completed:false },
-      { id:"r2-3", name:"Missing Numbers", nameHi:"लुप्त संख्या", completed:false },
-      { id:"r2-4", name:"Puzzle / Seating Arrangement", nameHi:"पहेली / बैठक व्यवस्था", completed:false }
+        { id:"r2-1", name:"Venn Diagrams", nameHi:"वेन आरेख", completed:false },
+        { id:"r2-2", name:"Mathematical Operations", nameHi:"गणितीय संक्रियाएँ", completed:false },
+        { id:"r2-3", name:"Missing Numbers", nameHi:"लुप्त संख्या", completed:false },
+        { id:"r2-4", name:"Puzzle / Seating Arrangement", nameHi:"पहेली / बैठक व्यवस्था", completed:false }
       ]
       },
       
@@ -210,15 +210,15 @@ export const allExams: Exam[] = [
       nameHi:"गैर मौखिक तर्क",
       completed:false,
       subtopics:[
-      { id:"r3-1", name:"Mirror Image", nameHi:"दर्पण प्रतिबिंब", completed:false },
-      { id:"r3-2", name:"Water Image", nameHi:"जल प्रतिबिंब", completed:false },
-      { id:"r3-3", name:"Paper Folding", nameHi:"कागज मोड़ना", completed:false },
-      { id:"r3-4", name:"Paper Cutting", nameHi:"कागज काटना", completed:false },
-      { id:"r3-5", name:"Embedded Figures", nameHi:"समाहित आकृतियाँ", completed:false },
-      { id:"r3-6", name:"Figure Series", nameHi:"आकृति श्रृंखला", completed:false },
-      { id:"r3-7", name:"Figure Completion", nameHi:"आकृति पूर्ण करना", completed:false },
-      { id:"r3-8", name:"Cube & Dice", nameHi:"घन और पासा", completed:false },
-      { id:"r3-9", name:"Pattern Folding", nameHi:"पैटर्न मोड़ना", completed:false }
+        { id:"r3-1", name:"Mirror Image", nameHi:"दर्पण प्रतिबिंब", completed:false },
+        { id:"r3-2", name:"Water Image", nameHi:"जल प्रतिबिंब", completed:false },
+        { id:"r3-3", name:"Paper Folding", nameHi:"कागज मोड़ना", completed:false },
+        { id:"r3-4", name:"Paper Cutting", nameHi:"कागज काटना", completed:false },
+        { id:"r3-5", name:"Embedded Figures", nameHi:"समाहित आकृतियाँ", completed:false },
+        { id:"r3-6", name:"Figure Series", nameHi:"आकृति श्रृंखला", completed:false },
+        { id:"r3-7", name:"Figure Completion", nameHi:"आकृति पूर्ण करना", completed:false },
+        { id:"r3-8", name:"Cube & Dice", nameHi:"घन और पासा", completed:false },
+        { id:"r3-9", name:"Pattern Folding", nameHi:"पैटर्न मोड़ना", completed:false }
       ]
       }
       
@@ -238,14 +238,14 @@ export const allExams: Exam[] = [
       nameHi:"व्याकरण",
       completed:false,
       subtopics:[
-      { id:"e1-1", name:"Parts of Speech", nameHi:"शब्द भेद", completed:false },
-      { id:"e1-2", name:"Tenses", nameHi:"काल", completed:false },
-      { id:"e1-3", name:"Articles", nameHi:"आर्टिकल", completed:false },
-      { id:"e1-4", name:"Prepositions", nameHi:"पूर्वसर्ग", completed:false },
-      { id:"e1-5", name:"Conjunctions", nameHi:"समुच्चय बोधक", completed:false },
-      { id:"e1-6", name:"Active Passive Voice", nameHi:"कर्तृ कर्म वाच्य", completed:false },
-      { id:"e1-7", name:"Direct Indirect Speech", nameHi:"प्रत्यक्ष अप्रत्यक्ष कथन", completed:false },
-      { id:"e1-8", name:"Subject Verb Agreement", nameHi:"कर्ता क्रिया सामंजस्य", completed:false }
+        { id:"e1-1", name:"Parts of Speech", nameHi:"शब्द भेद", completed:false },
+        { id:"e1-2", name:"Tenses", nameHi:"काल", completed:false },
+        { id:"e1-3", name:"Articles", nameHi:"आर्टिकल", completed:false },
+        { id:"e1-4", name:"Prepositions", nameHi:"पूर्वसर्ग", completed:false },
+        { id:"e1-5", name:"Conjunctions", nameHi:"समुच्चय बोधक", completed:false },
+        { id:"e1-6", name:"Active Passive Voice", nameHi:"कर्तृ कर्म वाच्य", completed:false },
+        { id:"e1-7", name:"Direct Indirect Speech", nameHi:"प्रत्यक्ष अप्रत्यक्ष कथन", completed:false },
+        { id:"e1-8", name:"Subject Verb Agreement", nameHi:"कर्ता क्रिया सामंजस्य", completed:false }
       ]
       },
       
@@ -255,11 +255,11 @@ export const allExams: Exam[] = [
       nameHi:"शब्दावली",
       completed:false,
       subtopics:[
-      { id:"e2-1", name:"Synonyms", nameHi:"पर्यायवाची", completed:false },
-      { id:"e2-2", name:"Antonyms", nameHi:"विलोम शब्द", completed:false },
-      { id:"e2-3", name:"One Word Substitution", nameHi:"एक शब्द प्रतिस्थापन", completed:false },
-      { id:"e2-4", name:"Idioms & Phrases", nameHi:"मुहावरे और लोकोक्तियाँ", completed:false },
-      { id:"e2-5", name:"Spelling Correction", nameHi:"वर्तनी सुधार", completed:false }
+        { id:"e2-1", name:"Synonyms", nameHi:"पर्यायवाची", completed:false },
+        { id:"e2-2", name:"Antonyms", nameHi:"विलोम शब्द", completed:false },
+        { id:"e2-3", name:"One Word Substitution", nameHi:"एक शब्द प्रतिस्थापन", completed:false },
+        { id:"e2-4", name:"Idioms & Phrases", nameHi:"मुहावरे और लोकोक्तियाँ", completed:false },
+        { id:"e2-5", name:"Spelling Correction", nameHi:"वर्तनी सुधार", completed:false }
       ]
       },
       
@@ -269,10 +269,10 @@ export const allExams: Exam[] = [
       nameHi:"वाक्य प्रयोग",
       completed:false,
       subtopics:[
-      { id:"e3-1", name:"Spotting Errors", nameHi:"त्रुटि पहचान", completed:false },
-      { id:"e3-2", name:"Sentence Improvement", nameHi:"वाक्य सुधार", completed:false },
-      { id:"e3-3", name:"Sentence Rearrangement", nameHi:"वाक्य क्रम", completed:false },
-      { id:"e3-4", name:"Fill in the Blanks", nameHi:"रिक्त स्थान भरें", completed:false }
+        { id:"e3-1", name:"Spotting Errors", nameHi:"त्रुटि पहचान", completed:false },
+        { id:"e3-2", name:"Sentence Improvement", nameHi:"वाक्य सुधार", completed:false },
+        { id:"e3-3", name:"Sentence Rearrangement", nameHi:"वाक्य क्रम", completed:false },
+        { id:"e3-4", name:"Fill in the Blanks", nameHi:"रिक्त स्थान भरें", completed:false }
       ]
       },
       
@@ -282,8 +282,8 @@ export const allExams: Exam[] = [
       nameHi:"पठन",
       completed:false,
       subtopics:[
-      { id:"e4-1", name:"Reading Comprehension", nameHi:"पठन बोध", completed:false },
-      { id:"e4-2", name:"Cloze Test", nameHi:"क्लोज टेस्ट", completed:false }
+        { id:"e4-1", name:"Reading Comprehension", nameHi:"पठन बोध", completed:false },
+        { id:"e4-2", name:"Cloze Test", nameHi:"क्लोज टेस्ट", completed:false }
       ]
       }
       
@@ -303,16 +303,16 @@ export const allExams: Exam[] = [
       nameHi:"स्थैतिक सामान्य ज्ञान",
       completed:false,
       subtopics:[
-      { id:"g1-1", name:"Indian History", nameHi:"भारतीय इतिहास", completed:false },
-      { id:"g1-2", name:"Indian Geography", nameHi:"भारतीय भूगोल", completed:false },
-      { id:"g1-3", name:"Indian Polity", nameHi:"भारतीय राजव्यवस्था", completed:false },
-      { id:"g1-4", name:"Indian Economy", nameHi:"भारतीय अर्थव्यवस्था", completed:false },
-      { id:"g1-5", name:"Indian Culture", nameHi:"भारतीय संस्कृति", completed:false },
-      { id:"g1-6", name:"Important Days", nameHi:"महत्वपूर्ण दिवस", completed:false },
-      { id:"g1-7", name:"Books & Authors", nameHi:"पुस्तकें और लेखक", completed:false },
-      { id:"g1-8", name:"Awards & Honors", nameHi:"पुरस्कार और सम्मान", completed:false },
-      { id:"g1-9", name:"Sports", nameHi:"खेल", completed:false },
-      { id:"g1-10", name:"Art & Culture", nameHi:"कला और संस्कृति", completed:false }
+        { id:"g1-1", name:"Indian History", nameHi:"भारतीय इतिहास", completed:false },
+        { id:"g1-2", name:"Indian Geography", nameHi:"भारतीय भूगोल", completed:false },
+        { id:"g1-3", name:"Indian Polity", nameHi:"भारतीय राजव्यवस्था", completed:false },
+        { id:"g1-4", name:"Indian Economy", nameHi:"भारतीय अर्थव्यवस्था", completed:false },
+        { id:"g1-5", name:"Indian Culture", nameHi:"भारतीय संस्कृति", completed:false },
+        { id:"g1-6", name:"Important Days", nameHi:"महत्वपूर्ण दिवस", completed:false },
+        { id:"g1-7", name:"Books & Authors", nameHi:"पुस्तकें और लेखक", completed:false },
+        { id:"g1-8", name:"Awards & Honors", nameHi:"पुरस्कार और सम्मान", completed:false },
+        { id:"g1-9", name:"Sports", nameHi:"खेल", completed:false },
+        { id:"g1-10", name:"Art & Culture", nameHi:"कला और संस्कृति", completed:false }
       ]
       },
       
@@ -322,9 +322,9 @@ export const allExams: Exam[] = [
       nameHi:"विज्ञान",
       completed:false,
       subtopics:[
-      { id:"g2-1", name:"Physics", nameHi:"भौतिक विज्ञान", completed:false },
-      { id:"g2-2", name:"Chemistry", nameHi:"रसायन विज्ञान", completed:false },
-      { id:"g2-3", name:"Biology", nameHi:"जीव विज्ञान", completed:false }
+        { id:"g2-1", name:"Physics", nameHi:"भौतिक विज्ञान", completed:false },
+        { id:"g2-2", name:"Chemistry", nameHi:"रसायन विज्ञान", completed:false },
+        { id:"g2-3", name:"Biology", nameHi:"जीव विज्ञान", completed:false }
       ]
       },
       
@@ -334,10 +334,10 @@ export const allExams: Exam[] = [
       nameHi:"अन्य",
       completed:false,
       subtopics:[
-      { id:"g3-1", name:"Inventions & Discoveries", nameHi:"आविष्कार और खोज", completed:false },
-      { id:"g3-2", name:"Scientific Research", nameHi:"वैज्ञानिक अनुसंधान", completed:false },
-      { id:"g3-3", name:"Environment & Ecology", nameHi:"पर्यावरण और पारिस्थितिकी", completed:false },
-      { id:"g3-4", name:"Current Affairs", nameHi:"करंट अफेयर्स", completed:false }
+        { id:"g3-1", name:"Inventions & Discoveries", nameHi:"आविष्कार और खोज", completed:false },
+        { id:"g3-2", name:"Scientific Research", nameHi:"वैज्ञानिक अनुसंधान", completed:false },
+        { id:"g3-3", name:"Environment & Ecology", nameHi:"पर्यावरण और पारिस्थितिकी", completed:false },
+        { id:"g3-4", name:"Current Affairs", nameHi:"करंट अफेयर्स", completed:false }
       ]
       }
       

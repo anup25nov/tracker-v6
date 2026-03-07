@@ -105,16 +105,21 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
           />
         </div>
 
-        <div className="flex justify-between mt-1.5 px-0.5">
+        {/* Milestones at 25%, 50%, 75%, 100% of bar width */}
+        <div className="relative w-full mt-1.5 h-5">
           {[25, 50, 75, 100].map((m) => (
-            <div key={m} className="flex flex-col items-center">
+            <div
+              key={m}
+              className="absolute flex flex-col items-center -translate-x-1/2"
+              style={{ left: `${m}%` }}
+            >
               <div
-                className={`w-1.5 h-1.5 rounded-full transition-all ${
+                className={`w-1.5 h-1.5 rounded-full transition-all shrink-0 ${
                   progress >= m ? "scale-125" : "opacity-30"
                 }`}
                 style={{ background: progress >= m ? `hsl(${color})` : `hsl(var(--muted-foreground))` }}
               />
-              <span className="text-[9px] text-muted-foreground mt-0.5">{m}%</span>
+              <span className="text-[9px] text-muted-foreground mt-0.5 whitespace-nowrap">{m}%</span>
             </div>
           ))}
         </div>
