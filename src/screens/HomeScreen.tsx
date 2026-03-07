@@ -5,6 +5,7 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressRing from "@/components/ProgressRing";
 import { ChevronRight, Flame, Zap } from "lucide-react";
+import SSCLogo from "@/components/SSCLogo";
 
 interface HomeScreenProps {
   onNavigate: (tab: string) => void;
@@ -65,7 +66,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
               border: `1px solid hsl(${exam.color} / 0.3)`,
             }}
           >
-            {exam.icon} {language === "hi" ? exam.nameHi : exam.name}
+            {selectedExamId === "ssc-cgl" ? <SSCLogo size={18} className="shrink-0" /> : exam.icon} {language === "hi" ? exam.nameHi : exam.name}
           </button>
         )}
       </motion.div>

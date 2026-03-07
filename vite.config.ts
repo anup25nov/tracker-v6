@@ -17,10 +17,10 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "icons/icon-192.png", "icons/icon-512.png"],
+      includeAssets: ["favicon.ico", "logo512x512.png"],
       manifest: {
-        name: "SSC Syllabus Tracker",
-        short_name: "SSC Tracker",
+        name: "SSC Exam Sathi",
+        short_name: "SSC Exam Sathi",
         description: "Track your SSC exam syllabus completion easily",
         theme_color: "#0f172a",
         background_color: "#0f172a",
@@ -28,9 +28,9 @@ export default defineConfig(({ mode }) => ({
         orientation: "portrait",
         start_url: "/",
         icons: [
-          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
-          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          { src: "/logo512x512.png", sizes: "192x192", type: "image/png" },
+          { src: "/logo512x512.png", sizes: "512x512", type: "image/png" },
+          { src: "/logo512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
       workbox: {

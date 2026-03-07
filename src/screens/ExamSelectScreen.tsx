@@ -3,6 +3,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { allExams } from "@/data/syllabus";
 import { Lock } from "lucide-react";
+import SSCLogo from "@/components/SSCLogo";
 
 interface ExamSelectScreenProps {
   onExamSelected?: () => void;
@@ -50,10 +51,10 @@ const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
             >
               <div className="flex items-center gap-4">
                 <div
-                  className="text-3xl w-14 h-14 flex items-center justify-center rounded-2xl"
+                  className="w-14 h-14 flex items-center justify-center rounded-2xl overflow-hidden shrink-0"
                   style={{ background: `hsl(${exam.color} / 0.15)` }}
                 >
-                  {exam.icon}
+                  {exam.id === "ssc-cgl" ? <SSCLogo size={40} /> : <span className="text-3xl">{exam.icon}</span>}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

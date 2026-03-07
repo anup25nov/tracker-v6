@@ -5,6 +5,7 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import { ChevronRight, CheckCircle2, BookOpen } from "lucide-react";
+import SSCLogo from "@/components/SSCLogo";
 
 interface SubjectsScreenProps {
   onSelectSubject: (subjectId: string) => void;
@@ -25,7 +26,7 @@ const SubjectsScreen = ({ onSelectSubject }: SubjectsScreenProps) => {
         {exam && (
           <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
             <BookOpen size={12} />
-            {exam.icon} {language === "hi" ? exam.nameHi : exam.name} — {syllabus.reduce((a, s) => a + s.topics.length, 0)} {t("topics")}
+            {selectedExamId === "ssc-cgl" ? <SSCLogo size={14} className="inline-block align-middle" /> : exam.icon} {language === "hi" ? exam.nameHi : exam.name} — {syllabus.reduce((a, s) => a + s.topics.length, 0)} {t("topics")}
           </p>
         )}
       </motion.div>

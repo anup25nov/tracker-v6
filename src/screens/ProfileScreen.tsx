@@ -4,6 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { allExams } from "@/data/syllabus";
 import { useState } from "react";
 import { RotateCcw, ChevronRight } from "lucide-react";
+import SSCLogo from "@/components/SSCLogo";
 
 interface ProfileScreenProps {
   onChangeExam: () => void;
@@ -83,7 +84,7 @@ const ProfileScreen = ({ onChangeExam }: ProfileScreenProps) => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "SSC Syllabus Tracker",
+        title: "SSC Exam Sathi",
         text: `Track your ${exam?.name || "SSC"} syllabus easily with this app!`,
         url: window.location.href,
       });
@@ -149,8 +150,8 @@ const ProfileScreen = ({ onChangeExam }: ProfileScreenProps) => {
         <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-10" style={{ background: "white" }} />
 
         <div className="relative flex items-center gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl sm:text-4xl shadow-lg">
-            {exam?.icon || "🎯"}
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg overflow-hidden">
+            {selectedExamId === "ssc-cgl" ? <SSCLogo size={48} className="sm:w-16 sm:h-16" /> : <span className="text-3xl sm:text-4xl">{exam?.icon || "🎯"}</span>}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[10px] sm:text-xs text-white/60 font-medium uppercase tracking-wider">{t("changeExam")}</p>

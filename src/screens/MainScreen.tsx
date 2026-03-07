@@ -7,6 +7,7 @@ import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
 import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Flame, Sun, Moon, ChevronDown } from "lucide-react";
+import SSCLogo from "@/components/SSCLogo";
 import { logScreenView, logExamSelected } from "@/lib/firebase";
 import { useEffect } from "react";
 
@@ -108,7 +109,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "SSC Syllabus Tracker",
+        title: "SSC Exam Sathi",
         text: `Track your ${exam?.name || "SSC"} syllabus easily with this app!`,
         url: window.location.href,
       });
@@ -172,7 +173,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
             border: `1px solid hsl(${color} / 0.25)`,
           }}
         >
-          <span className="text-lg">{exam?.icon || "📚"}</span>
+          <span className="text-lg flex items-center">{selectedExamId === "ssc-cgl" ? <SSCLogo size={22} /> : (exam?.icon || "📚")}</span>
           <span className="text-xs sm:text-sm font-bold" style={{ color: `hsl(${color})` }}>
             {exam ? (language === "hi" ? exam.nameHi : exam.name) : t("selectExam")}
           </span>

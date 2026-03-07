@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">SSC Syllabus Tracker</string>
-    <string name="title_activity_main">SSC Syllabus Tracker</string>
+    <string name="app_name">SSC Exam Sathi</string>
+    <string name="title_activity_main">SSC Exam Sathi</string>
     <string name="package_name">app.lovable.cc6c5ed3ff674b4e8bf108e266469c2d</string>
     <string name="custom_url_scheme">app.lovable.cc6c5ed3ff674b4e8bf108e266469c2d</string>
 </resources>
