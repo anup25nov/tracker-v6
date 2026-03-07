@@ -56,11 +56,11 @@ If you sign the app yourself (not recommended for new apps), configure `android/
 
 Play requires a **publicly accessible privacy policy URL** for apps that handle user data (e.g. progress, analytics).
 
-- **What to do:** Publish a privacy policy page (e.g. on your website or GitHub Pages) that explains:
-  - What data the app stores (e.g. progress on device, optional Firebase analytics if you use it).
-  - That data is stored locally / in Firebase (as applicable).
-  - No selling of user data, etc.
-- Add the URL in Play Console: **App content → Privacy policy** and paste the link.
+- **In this repo:** A ready-to-use policy is in **`public/privacy-policy.html`**. It covers local storage (progress, preferences), Firebase Analytics (anonymous usage), no account/sign-in, no sale of data, backup/restore, and contact.
+- **Get a URL:** Host that file at a public URL. Options:
+  1. **GitHub Pages:** Enable Pages for this repo (Settings → Pages → deploy from branch, e.g. `main`, folder `/ (root)` or assign `public` as source if supported). The URL will be like `https://<username>.github.io/<repo-name>/privacy-policy.html`. If the site is served from `dist` or root, put `privacy-policy.html` in the deployed root so the URL is `https://.../privacy-policy.html`.
+  2. **Your own domain:** Upload `public/privacy-policy.html` to your website (e.g. `https://yoursite.com/privacy-policy.html`).
+- In Play Console go to **App content → Privacy policy** and enter that full URL.
 
 ### 2.4 App content (questionnaires)
 
