@@ -3,13 +3,13 @@ import { getAnalytics, logEvent as firebaseLogEvent, Analytics } from "firebase/
 
 // Firebase config — these are all publishable client-side keys
 const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: "",
+  apiKey: "AIzaSyCgUKFHIk5E8O4pi2sm52WV93rubooY6ws",
+  authDomain: "syllabus-tracker-bb443.firebaseapp.com",
+  projectId: "syllabus-tracker-bb443",
+  storageBucket: "syllabus-tracker-bb443.firebasestorage.app",
+  messagingSenderId: "56419108715",
+  appId: "1:56419108715:web:bb3ecc264cf58f79e2ae2e",
+  measurementId: "G-RN89GFFB0G",
 };
 
 let analytics: Analytics | null = null;
