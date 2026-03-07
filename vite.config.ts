@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       disable: process.env.BUILD_FOR_ANDROID === "1",
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "logo512x512.png"],
+      includeAssets: ["favicon.ico", "app_logo.png"],
       manifest: {
         name: "SSC Exam Sathi",
         short_name: "SSC Exam Sathi",
@@ -29,9 +29,9 @@ export default defineConfig(({ mode }) => ({
         orientation: "portrait",
         start_url: "/",
         icons: [
-          { src: "/logo512x512.png", sizes: "192x192", type: "image/png" },
-          { src: "/logo512x512.png", sizes: "512x512", type: "image/png" },
-          { src: "/logo512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+          { src: "/app_logo.png", sizes: "192x192", type: "image/jpeg" },
+          { src: "/app_logo.png", sizes: "512x512", type: "image/jpeg" },
+          { src: "/app_logo.png", sizes: "512x512", type: "image/jpeg", purpose: "maskable" },
         ],
       },
       workbox: {

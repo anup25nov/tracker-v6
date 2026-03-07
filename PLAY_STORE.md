@@ -48,7 +48,7 @@ If you sign the app yourself (not recommended for new apps), configure `android/
 - **App name:** SSC Exam Sathi  
 - **Short description:** Up to 80 characters (e.g. “Track SSC CGL syllabus topic-wise. Mark topics done, see progress.”).  
 - **Full description:** Up to 4000 characters. Describe features: syllabus tracking, subjects, topics, progress, backup/restore, etc.  
-- **App icon:** 512 x 512 px PNG (no alpha). You can use `public/logo512x512.png` as a base; ensure it meets [Play’s icon guidelines](https://support.google.com/googleplay/android-developer/answer/9866151).  
+- **App icon:** 512 x 512 px PNG (no alpha). You can use `public/app_logo.png` (or export a 512×512 PNG from it); ensure it meets [Play’s icon guidelines](https://support.google.com/googleplay/android-developer/answer/9866151).  
 - **Feature graphic:** 1024 x 500 px (JPG or PNG).  
 - **Screenshots:** At least 2 phone screenshots (e.g. 1080x1920 or similar). Capture: exam select, subject list, topic list, progress.
 
