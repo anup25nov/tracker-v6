@@ -165,10 +165,15 @@ export const useAppStore = create<AppState>()(
       },
 
       getOverallProgress: () => {
-        const syllabus = get().syllabus;
+        const state = get();
+        const syllabus = state.syllabus;
+        if (syllabus.length === 0) return { completed: 0, total: 0, percent: 0 };
+        // Overall percent = average of subject percentages (each subject has equal weight)
+        let sumSubjectPercent = 0;
         let total = 0;
         let completed = 0;
         for (const s of syllabus) {
+          sumSubjectPercent += state.getSubjectProgress(s.id);
           for (const t of s.topics) {
             if (t.subtopics?.length) {
               total += t.subtopics.length;
@@ -179,7 +184,8 @@ export const useAppStore = create<AppState>()(
             }
           }
         }
-        return { completed, total, percent: total > 0 ? Math.round((completed / total) * 100) : 0 };
+        const percent = Math.round(sumSubjectPercent / syllabus.length);
+        return { completed, total, percent };
       },
 
       getWeakestSubject: () => {
