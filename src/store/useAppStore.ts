@@ -38,9 +38,16 @@ export const useAppStore = create<AppState>()(
       lastAchievement: null,
 
       selectExam: (examId) => {
+        const state = get();
+        // If same exam is selected again and we already have syllabus loaded,
+        // keep existing progress instead of resetting everything.
+        if (state.selectedExamId === examId && state.syllabus.length > 0) {
+          set({ selectedExamId: examId });
+          return;
+        }
+
         const exam = allExams.find((e) => e.id === examId);
         if (!exam) return;
-        // Deep clone to avoid reference issues
         const freshSyllabus = JSON.parse(JSON.stringify(exam.subjects)) as Subject[];
         set({
           selectedExamId: examId,

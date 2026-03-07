@@ -94,7 +94,7 @@ ls android/capacitor.settings.gradle
 
 
 #step 3
-cd android
+cd /Users/anupmishra/Desktop/repos/tracker-v5/android
 ./gradlew assembleDebug
 
 #step 4
