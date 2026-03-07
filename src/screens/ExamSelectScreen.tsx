@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import { allExams } from "@/data/syllabus";
+import { allExams, countExamUnits } from "@/data/syllabus";
 import { Lock } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
 
@@ -35,7 +35,7 @@ const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
       <div className="w-full max-w-md space-y-4">
         {allExams.map((exam, index) => {
           const isAvailable = exam.id === "ssc-cgl";
-          const totalTopics = exam.subjects.reduce((a, s) => a + s.topics.length, 0);
+          const totalTopics = countExamUnits(exam);
           return (
             <motion.button
               key={exam.id}

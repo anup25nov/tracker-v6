@@ -1,14 +1,23 @@
-import { motion } from "framer-motion";
-import { ArrowLeft, Check, Trophy } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Check, Trophy, ChevronDown, ChevronRight } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getSubjectColor } from "@/lib/subjectColors";
 import { logScreenView, logTopicToggled } from "@/lib/firebase";
 import { useEffect } from "react";
+import type { Topic } from "@/data/syllabus";
 
 interface TopicsScreenProps {
   subjectId: string;
   onBack: () => void;
+}
+
+function isTopicDone(topic: Topic): boolean {
+  if (topic.subtopics?.length) {
+    return topic.subtopics.every((st) => st.completed);
+  }
+  return topic.completed;
 }
 
 const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
@@ -16,8 +25,10 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
   const syllabus = useAppStore((s) => s.syllabus);
   const toggleTopic = useAppStore((s) => s.toggleTopic);
   const getSubjectProgress = useAppStore((s) => s.getSubjectProgress);
+  const getSubjectUnits = useAppStore((s) => s.getSubjectUnits);
 
   const subject = syllabus.find((s) => s.id === subjectId);
+  const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
 
   useEffect(() => {
     logScreenView(`topics_${subjectId}`);
@@ -26,14 +37,25 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
   if (!subject) return null;
 
   const progress = getSubjectProgress(subjectId);
-  const completed = subject.topics.filter((t) => t.completed).length;
+  const units = getSubjectUnits(subjectId);
   const color = getSubjectColor(subjectId);
   const isAllDone = progress === 100;
 
-  const handleToggle = (topicId: string) => {
+  const handleToggleTopic = (topicId: string) => {
     const topic = subject.topics.find((t) => t.id === topicId);
+    if (topic?.subtopics?.length) {
+      setExpandedTopicId((id) => (id === topicId ? null : topicId));
+      return;
+    }
     toggleTopic(subjectId, topicId);
     logTopicToggled(subjectId, topicId, !topic?.completed);
+  };
+
+  const handleToggleSubtopic = (topicId: string, subtopicId: string) => {
+    const topic = subject.topics.find((t) => t.id === topicId);
+    const subtopic = topic?.subtopics?.find((st) => st.id === subtopicId);
+    toggleTopic(subjectId, topicId, subtopicId);
+    logTopicToggled(subjectId, subtopicId, !subtopic?.completed);
   };
 
   return (
@@ -61,7 +83,7 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
               {subject.icon} {language === "hi" ? subject.nameHi : subject.name}
             </h1>
             <p className="text-[11px] sm:text-xs text-muted-foreground">
-              {completed} / {subject.topics.length} {t("topicsCompleted")}
+              {units.completed} / {units.total} {t("topicsCompleted")}
             </p>
           </div>
           <div className="flex flex-col items-center">
@@ -71,7 +93,6 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
           </div>
         </div>
 
-        {/* Progress bar */}
         <div className="w-full h-2.5 sm:h-3 rounded-full bg-secondary overflow-hidden">
           <motion.div
             className="h-full rounded-full"
@@ -84,7 +105,6 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
           />
         </div>
 
-        {/* Milestone indicators */}
         <div className="flex justify-between mt-1.5 px-0.5">
           {[25, 50, 75, 100].map((m) => (
             <div key={m} className="flex flex-col items-center">
@@ -117,67 +137,129 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
 
       {/* Topics List */}
       <div className="space-y-1.5 sm:space-y-2">
-        {subject.topics.map((topic, index) => (
-          <motion.button
-            key={topic.id}
-            className="w-full flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-all active:scale-[0.97]"
-            style={{
-              background: topic.completed
-                ? `hsl(${color} / 0.08)`
-                : `hsl(var(--card))`,
-              borderColor: topic.completed
-                ? `hsl(${color} / 0.25)`
-                : `hsl(var(--border))`,
-            }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, delay: index * 0.025 }}
-            onClick={() => handleToggle(topic.id)}
-          >
-            <div
-              className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center border-2 transition-all shrink-0"
-              style={{
-                background: topic.completed ? `hsl(${color})` : "transparent",
-                borderColor: topic.completed ? `hsl(${color})` : `hsl(var(--muted-foreground) / 0.3)`,
-              }}
-            >
-              {topic.completed && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+        {subject.topics.map((topic, index) => {
+          const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
+          const isExpanded = expandedTopicId === topic.id;
+          const done = isTopicDone(topic);
+          const subtopicCompleted = hasSubtopics
+            ? topic.subtopics!.filter((st) => st.completed).length
+            : 0;
+          const subtopicTotal = hasSubtopics ? topic.subtopics!.length : 0;
+
+          return (
+            <div key={topic.id}>
+              <motion.button
+                className="w-full flex items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border transition-all active:scale-[0.97]"
+                style={{
+                  background: done ? `hsl(${color} / 0.08)` : `hsl(var(--card))`,
+                  borderColor: done ? `hsl(${color} / 0.25)` : `hsl(var(--border))`,
+                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: index * 0.025 }}
+                onClick={() => handleToggleTopic(topic.id)}
+              >
+                <div
+                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center border-2 transition-all shrink-0"
+                  style={{
+                    background: done ? `hsl(${color})` : "transparent",
+                    borderColor: done ? `hsl(${color})` : `hsl(var(--muted-foreground) / 0.3)`,
+                  }}
                 >
-                  <Check size={12} className="text-white" />
-                </motion.div>
-              )}
+                  {done && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                    >
+                      <Check size={12} className="text-white" />
+                    </motion.div>
+                  )}
+                </div>
+
+                {hasSubtopics ? (
+                  <span className="shrink-0 text-muted-foreground">
+                    {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  </span>
+                ) : (
+                  <span
+                    className="text-[10px] sm:text-xs font-bold w-5 sm:w-6 shrink-0"
+                    style={{ color: done ? `hsl(${color})` : `hsl(var(--muted-foreground))` }}
+                  >
+                    {index + 1}
+                  </span>
+                )}
+
+                <span
+                  className={`text-xs sm:text-sm font-medium flex-1 text-left leading-snug ${
+                    done ? "line-through opacity-70" : ""
+                  }`}
+                  style={{ color: done ? `hsl(${color})` : `hsl(var(--foreground))` }}
+                >
+                  {language === "hi" ? topic.nameHi : topic.name}
+                  {hasSubtopics && (
+                    <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">
+                      ({subtopicCompleted}/{subtopicTotal})
+                    </span>
+                  )}
+                </span>
+
+                {done && !hasSubtopics && (
+                  <motion.div
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ background: `hsl(${color})` }}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                  />
+                )}
+              </motion.button>
+
+              <AnimatePresence>
+                {hasSubtopics && isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-4 pr-2 py-1.5 space-y-1 border-l-2 border-b border-r rounded-b-xl ml-5 sm:ml-6 border-border" style={{ borderColor: `hsl(${color} / 0.2)` }}>
+                      {topic.subtopics!.map((st) => (
+                        <button
+                          key={st.id}
+                          className="w-full flex items-center gap-2 py-2 px-2.5 rounded-lg active:scale-[0.98] transition-transform text-left"
+                          style={{ background: `hsl(var(--card))` }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleSubtopic(topic.id, st.id);
+                          }}
+                        >
+                          <div
+                            className="w-4 h-4 rounded-md flex items-center justify-center border-2 shrink-0"
+                            style={{
+                              background: st.completed ? `hsl(${color})` : "transparent",
+                              borderColor: st.completed ? `hsl(${color})` : `hsl(var(--muted-foreground) / 0.3)`,
+                            }}
+                          >
+                            {st.completed && <Check size={10} className="text-white" />}
+                          </div>
+                          <span
+                            className={`text-[11px] sm:text-xs font-medium flex-1 ${
+                              st.completed ? "line-through opacity-70" : ""
+                            }`}
+                            style={{ color: st.completed ? `hsl(${color})` : `hsl(var(--foreground))` }}
+                          >
+                            {language === "hi" ? st.nameHi : st.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-
-            <span
-              className="text-[10px] sm:text-xs font-bold w-5 sm:w-6 shrink-0"
-              style={{ color: topic.completed ? `hsl(${color})` : `hsl(var(--muted-foreground))` }}
-            >
-              {index + 1}
-            </span>
-
-            <span
-              className={`text-xs sm:text-sm font-medium flex-1 text-left leading-snug ${
-                topic.completed ? "line-through opacity-70" : ""
-              }`}
-              style={{ color: topic.completed ? `hsl(${color})` : `hsl(var(--foreground))` }}
-            >
-              {language === "hi" ? topic.nameHi : topic.name}
-            </span>
-
-            {topic.completed && (
-              <motion.div
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ background: `hsl(${color})` }}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-              />
-            )}
-          </motion.button>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

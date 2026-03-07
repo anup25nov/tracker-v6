@@ -79,7 +79,8 @@ const ProfileScreen = ({ onChangeExam }: ProfileScreenProps) => {
 
   const exam = allExams.find((e) => e.id === selectedExamId);
   const color = exam?.color || "217 91% 60%";
-  const totalTopics = syllabus.reduce((a, s) => a + s.topics.length, 0);
+  const getOverallProgress = useAppStore((s) => s.getOverallProgress);
+  const totalTopics = getOverallProgress().total;
 
   const handleShare = () => {
     if (navigator.share) {

@@ -88,7 +88,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
   const exam = allExams.find((e) => e.id === selectedExamId);
   const overall = getOverallProgress();
   const color = exam?.color || "217 91% 60%";
-  const totalTopics = syllabus.reduce((a, s) => a + s.topics.length, 0);
+  const totalTopics = overall.total;
 
   useEffect(() => {
     logScreenView("main_screen");

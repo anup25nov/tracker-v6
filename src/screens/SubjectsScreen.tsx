@@ -16,6 +16,7 @@ const SubjectsScreen = ({ onSelectSubject }: SubjectsScreenProps) => {
   const syllabus = useAppStore((s) => s.syllabus);
   const selectedExamId = useAppStore((s) => s.selectedExamId);
   const getSubjectProgress = useAppStore((s) => s.getSubjectProgress);
+  const getSubjectUnits = useAppStore((s) => s.getSubjectUnits);
 
   const exam = allExams.find((e) => e.id === selectedExamId);
 
@@ -26,7 +27,7 @@ const SubjectsScreen = ({ onSelectSubject }: SubjectsScreenProps) => {
         {exam && (
           <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
             <BookOpen size={12} />
-            {selectedExamId === "ssc-cgl" ? <SSCLogo size={14} className="inline-block align-middle" /> : exam.icon} {language === "hi" ? exam.nameHi : exam.name} — {syllabus.reduce((a, s) => a + s.topics.length, 0)} {t("topics")}
+            {selectedExamId === "ssc-cgl" ? <SSCLogo size={14} className="inline-block align-middle" /> : exam.icon} {language === "hi" ? exam.nameHi : exam.name} — {syllabus.reduce((a, s) => a + getSubjectUnits(s.id).total, 0)} {t("topics")}
           </p>
         )}
       </motion.div>
@@ -34,8 +35,7 @@ const SubjectsScreen = ({ onSelectSubject }: SubjectsScreenProps) => {
       <div className="space-y-2.5 sm:space-y-3">
         {syllabus.map((subject, index) => {
           const progress = getSubjectProgress(subject.id);
-          const completed = subject.topics.filter((t) => t.completed).length;
-          const total = subject.topics.length;
+          const units = getSubjectUnits(subject.id);
           const color = getSubjectColor(subject.id);
           const isComplete = progress === 100;
 
@@ -69,7 +69,7 @@ const SubjectsScreen = ({ onSelectSubject }: SubjectsScreenProps) => {
                     {isComplete && <CheckCircle2 size={14} className="text-success shrink-0" />}
                   </div>
                   <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                    {completed} {t("of")} {total} {t("topicsCompleted")}
+                    {units.completed} {t("of")} {units.total} {t("topicsCompleted")}
                   </p>
                   <div className="mt-1.5 sm:mt-2">
                     <ProgressBar percent={progress} height={5} />
@@ -84,16 +84,21 @@ const SubjectsScreen = ({ onSelectSubject }: SubjectsScreenProps) => {
               </div>
 
               <div className="flex flex-wrap gap-1 sm:gap-1.5 mt-2.5 sm:mt-3 pl-2">
-                {subject.topics.slice(0, 4).map((topic) => (
+                {subject.topics.slice(0, 4).map((topic) => {
+                  const topicDone = topic.subtopics?.length
+                    ? topic.subtopics.every((st) => st.completed)
+                    : topic.completed;
+                  return (
                   <span
                     key={topic.id}
                     className={`text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full font-medium ${
-                      topic.completed ? "bg-success/20 text-success" : "bg-secondary text-muted-foreground"
+                      topicDone ? "bg-success/20 text-success" : "bg-secondary text-muted-foreground"
                     }`}
                   >
                     {language === "hi" ? topic.nameHi : topic.name}
                   </span>
-                ))}
+                  );
+                })}
                 {subject.topics.length > 4 && (
                   <span className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full bg-secondary text-muted-foreground font-medium">
                     +{subject.topics.length - 4}

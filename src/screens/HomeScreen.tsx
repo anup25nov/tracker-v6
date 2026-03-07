@@ -39,6 +39,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
   const getOverallProgress = useAppStore((s) => s.getOverallProgress);
   const getSubjectProgress = useAppStore((s) => s.getSubjectProgress);
   const getFirstIncompleteSubject = useAppStore((s) => s.getFirstIncompleteSubject);
+  const getSubjectUnits = useAppStore((s) => s.getSubjectUnits);
 
   const overall = getOverallProgress();
   const exam = allExams.find((e) => e.id === selectedExamId);
@@ -146,7 +147,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
           {syllabus.map((subject, index) => {
             const progress = getSubjectProgress(subject.id);
             const color = getSubjectColor(subject.id);
-            const comp = subject.topics.filter((t) => t.completed).length;
+            const units = getSubjectUnits(subject.id);
 
             return (
               <motion.button
@@ -169,7 +170,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
                   {language === "hi" ? subject.nameHi : subject.name}
                 </p>
                 <p className="text-[9px] sm:text-[10px] text-muted-foreground">
-                  {comp}/{subject.topics.length} {t("completed")}
+                  {units.completed}/{units.total} {t("completed")}
                 </p>
                 <div className="mt-1.5 sm:mt-2 w-full h-1 sm:h-1.5 rounded-full bg-secondary overflow-hidden">
                   <motion.div
