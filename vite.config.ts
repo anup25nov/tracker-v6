@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
+      disable: process.env.BUILD_FOR_ANDROID === "1",
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "logo512x512.png"],
       manifest: {

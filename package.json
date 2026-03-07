@@ -7,6 +7,8 @@
     "dev": "vite",
     "generate-logo": "node scripts/generate-logo.mjs",
     "build": "npm run generate-logo && vite build",
+    "build:android": "npm run generate-logo && BUILD_FOR_ANDROID=1 vite build",
+    "build:aab": "npm run build:android && npx cap sync android && cd android && ./gradlew bundleRelease",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
