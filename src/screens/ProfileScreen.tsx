@@ -1,40 +1,70 @@
 import { motion } from "framer-motion";
-import { Share2, Globe, RotateCcw, RefreshCw } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { allExams } from "@/data/syllabus";
 import { useState } from "react";
+import { RotateCcw, ChevronRight } from "lucide-react";
 
 interface ProfileScreenProps {
   onChangeExam: () => void;
 }
 
-// Inline SVG brand icons
+// Proper brand SVG icons
 const TelegramIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.28-.02-.12.03-2.07 1.32-5.84 3.87-.55.38-1.05.56-1.5.55-.49-.01-1.44-.28-2.15-.51-.87-.29-1.56-.44-1.5-.93.03-.26.38-.52 1.06-.79 4.15-1.81 6.93-3 8.32-3.6 3.97-1.65 4.79-1.94 5.33-1.95.12 0 .38.03.55.17.14.12.18.28.2.45-.01.06.01.24 0 .37z" fill="#29B6F6"/>
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+    <circle cx="12" cy="12" r="12" fill="#2AABEE" />
+    <path d="M5.43 11.87c2.94-1.28 4.9-2.12 5.88-2.53 2.8-1.17 3.38-1.37 3.76-1.38.08 0 .27.02.39.12.1.08.13.2.14.28.01.05.03.26.01.4-.18 1.92-.98 6.58-1.38 8.73-.17.91-.5 1.22-.82 1.25-.7.06-1.23-.46-1.9-.91-1.06-.7-1.66-1.13-2.69-1.82-1.18-.79-.42-1.23.26-1.94.18-.18 3.25-2.98 3.31-3.23.01-.03.01-.15-.06-.21s-.16-.04-.23-.02c-.1.02-1.74 1.1-4.9 3.24-.46.32-1.88.82-1.88.82s-1.39-.27-2.07-.49c-.83-.28-1.49-.43-1.43-.9.03-.25.34-.5.93-.76z" fill="white" />
   </svg>
 );
 
 const YouTubeIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-    <path d="M23.5 6.19a3.02 3.02 0 00-2.12-2.14C19.54 3.5 12 3.5 12 3.5s-7.54 0-9.38.55A3.02 3.02 0 00.5 6.19 31.68 31.68 0 000 12a31.68 31.68 0 00.5 5.81 3.02 3.02 0 002.12 2.14c1.84.55 9.38.55 9.38.55s7.54 0 9.38-.55a3.02 3.02 0 002.12-2.14A31.68 31.68 0 0024 12a31.68 31.68 0 00-.5-5.81z" fill="#FF0000"/>
-    <path d="M9.55 15.57V8.43L15.82 12l-6.27 3.57z" fill="white"/>
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+    <rect width="24" height="24" rx="6" fill="#FF0000" />
+    <path d="M17.6 8.4c-.2-.7-.7-1.2-1.4-1.4C15 6.7 12 6.7 12 6.7s-3 0-4.2.3c-.7.2-1.2.7-1.4 1.4C6 9.6 6 12 6 12s0 2.4.4 3.6c.2.7.7 1.2 1.4 1.4 1.2.3 4.2.3 4.2.3s3 0 4.2-.3c.7-.2 1.2-.7 1.4-1.4.4-1.2.4-3.6.4-3.6s0-2.4-.4-3.6z" fill="#FF0000" />
+    <path d="M10.5 14.5l3.5-2.5-3.5-2.5v5z" fill="white" />
   </svg>
 );
 
 const InstagramIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
     <defs>
-      <linearGradient id="ig" x1="0" y1="24" x2="24" y2="0">
-        <stop offset="0%" stopColor="#FD5"/>
-        <stop offset="50%" stopColor="#FF543E"/>
-        <stop offset="100%" stopColor="#C837AB"/>
-      </linearGradient>
+      <radialGradient id="ig-g1" cx="30%" cy="107%" r="150%">
+        <stop offset="0%" stopColor="#fdf497" />
+        <stop offset="5%" stopColor="#fdf497" />
+        <stop offset="45%" stopColor="#fd5949" />
+        <stop offset="60%" stopColor="#d6249f" />
+        <stop offset="90%" stopColor="#285AEB" />
+      </radialGradient>
     </defs>
-    <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#ig)"/>
-    <circle cx="12" cy="12" r="4.5" stroke="white" strokeWidth="1.5" fill="none"/>
-    <circle cx="17.5" cy="6.5" r="1.2" fill="white"/>
+    <rect x="1" y="1" width="22" height="22" rx="6" fill="url(#ig-g1)" />
+    <rect x="3" y="3" width="18" height="18" rx="4.5" stroke="white" strokeWidth="1.5" fill="none" />
+    <circle cx="12" cy="12" r="4" stroke="white" strokeWidth="1.5" fill="none" />
+    <circle cx="17.2" cy="6.8" r="1.1" fill="white" />
+  </svg>
+);
+
+const ChangeExamIcon = () => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+    <circle cx="12" cy="12" r="11" fill="hsl(217 91% 60% / 0.12)" stroke="hsl(217 91% 60%)" strokeWidth="1.5" />
+    <path d="M8 10l4-3 4 3M8 14l4 3 4-3" stroke="hsl(217 91% 60%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const LanguageIcon = () => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+    <circle cx="12" cy="12" r="11" fill="hsl(280 73% 60% / 0.12)" stroke="hsl(280 73% 60%)" strokeWidth="1.5" />
+    <ellipse cx="12" cy="12" rx="4" ry="10.5" stroke="hsl(280 73% 60%)" strokeWidth="1.2" />
+    <line x1="2" y1="12" x2="22" y2="12" stroke="hsl(280 73% 60%)" strokeWidth="1.2" />
+    <line x1="4" y1="7.5" x2="20" y2="7.5" stroke="hsl(280 73% 60%)" strokeWidth="0.8" />
+    <line x1="4" y1="16.5" x2="20" y2="16.5" stroke="hsl(280 73% 60%)" strokeWidth="0.8" />
+  </svg>
+);
+
+const ShareIcon = () => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+    <circle cx="12" cy="12" r="11" fill="hsl(142 71% 45% / 0.12)" stroke="hsl(142 71% 45%)" strokeWidth="1.5" />
+    <path d="M12 5v10M8 9l4-4 4 4" stroke="hsl(142 71% 45%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M7 15v2h10v-2" stroke="hsl(142 71% 45%)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -44,104 +74,210 @@ const ProfileScreen = ({ onChangeExam }: ProfileScreenProps) => {
   const resetProgress = useAppStore((s) => s.resetProgress);
   const getOverallProgress = useAppStore((s) => s.getOverallProgress);
   const selectedExamId = useAppStore((s) => s.selectedExamId);
+  const syllabus = useAppStore((s) => s.syllabus);
+  const getSubjectProgress = useAppStore((s) => s.getSubjectProgress);
   const [showReset, setShowReset] = useState(false);
 
   const overall = getOverallProgress();
   const exam = allExams.find((e) => e.id === selectedExamId);
+  const color = exam?.color || "217 91% 60%";
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
         title: "SSC Syllabus Tracker",
-        text: "Track your SSC syllabus easily with this app.",
+        text: `I've completed ${overall.percent}% of my ${exam?.name || "SSC"} syllabus! Track yours too.`,
         url: window.location.href,
       });
     }
   };
 
+  // Stats
+  const completedSubjects = syllabus.filter(
+    (s) => s.topics.every((t) => t.completed)
+  ).length;
+
   const menuItems = [
-    { icon: <RefreshCw size={20} className="text-primary" />, label: t("changeExam"), onClick: onChangeExam, trailing: exam ? (language === "hi" ? exam.nameHi : exam.name) : "" },
-    { icon: <Globe size={20} className="text-primary" />, label: t("changeLanguage"), onClick: () => setLanguage(language === "en" ? "hi" : "en"), trailing: language === "en" ? "हिंदी" : "English" },
-    { icon: <Share2 size={20} className="text-primary" />, label: t("shareApp"), onClick: handleShare },
-    { icon: <TelegramIcon />, label: t("telegram"), onClick: () => {} },
-    { icon: <YouTubeIcon />, label: t("youtube"), onClick: () => {} },
-    { icon: <InstagramIcon />, label: t("instagram"), onClick: () => {} },
+    {
+      icon: <ChangeExamIcon />,
+      label: t("changeExam"),
+      onClick: onChangeExam,
+      trailing: exam ? (language === "hi" ? exam.nameHi : exam.name) : "",
+      accent: "217 91% 60%",
+    },
+    {
+      icon: <LanguageIcon />,
+      label: t("changeLanguage"),
+      onClick: () => setLanguage(language === "en" ? "hi" : "en"),
+      trailing: language === "en" ? "हिंदी" : "English",
+      accent: "280 73% 60%",
+    },
+    {
+      icon: <ShareIcon />,
+      label: t("shareApp"),
+      onClick: handleShare,
+      accent: "142 71% 45%",
+    },
+  ];
+
+  const socialItems = [
+    { icon: <TelegramIcon />, label: t("telegram"), onClick: () => {}, bg: "#2AABEE" },
+    { icon: <YouTubeIcon />, label: t("youtube"), onClick: () => {}, bg: "#FF0000" },
+    { icon: <InstagramIcon />, label: t("instagram"), onClick: () => {}, bg: "#E1306C" },
   ];
 
   return (
-    <div className="px-4 pt-10 pb-24 max-w-md mx-auto space-y-5">
-      {/* Profile Header */}
+    <div className="min-h-screen px-3 sm:px-4 pt-8 sm:pt-10 pb-24 max-w-lg mx-auto space-y-4 sm:space-y-5">
+      {/* Profile Header with gradient */}
       <motion.div
-        className="rounded-3xl p-6 flex flex-col items-center gap-3 relative overflow-hidden"
+        className="rounded-2xl sm:rounded-3xl p-5 sm:p-6 relative overflow-hidden"
         style={{
-          background: `linear-gradient(135deg, hsl(${exam?.color || "217 91% 60%"} / 0.15), hsl(${exam?.color || "217 91% 60%"} / 0.05))`,
-          border: `1px solid hsl(${exam?.color || "217 91% 60%"} / 0.2)`,
+          background: `linear-gradient(135deg, hsl(${color}), hsl(${color} / 0.75))`,
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div
-          className="w-20 h-20 rounded-full flex items-center justify-center text-3xl"
-          style={{ background: `hsl(${exam?.color || "217 91% 60%"} / 0.2)` }}
-        >
-          🎯
-        </div>
-        <h2 className="text-xl font-bold text-foreground">{t("sscAspirant")}</h2>
-        {exam && (
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold"
-            style={{ background: `hsl(${exam.color} / 0.15)`, color: `hsl(${exam.color})` }}
-          >
-            {exam.icon} {language === "hi" ? exam.nameHi : exam.name}
+        {/* Decorative circles */}
+        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20" style={{ background: "white" }} />
+        <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-10" style={{ background: "white" }} />
+
+        <div className="relative flex items-center gap-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-3xl sm:text-4xl shadow-lg">
+            🎯
           </div>
-        )}
-        <p className="text-sm text-muted-foreground">
-          {overall.percent}% {t("completed")} • {overall.completed}/{overall.total} {t("topicsCompleted")}
-        </p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-bold text-white">{t("sscAspirant")}</h2>
+            {exam && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-white/20 text-white mt-1.5">
+                {exam.icon} {language === "hi" ? exam.nameHi : exam.name}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="relative grid grid-cols-3 gap-2 mt-5">
+          {[
+            { value: overall.percent + "%", label: t("completed") },
+            { value: `${overall.completed}/${overall.total}`, label: t("topics") },
+            { value: completedSubjects + "/" + syllabus.length, label: t("subjects") },
+          ].map((stat, i) => (
+            <div key={i} className="bg-white/15 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 text-center">
+              <p className="text-base sm:text-lg font-extrabold text-white">{stat.value}</p>
+              <p className="text-[9px] sm:text-[10px] text-white/70 font-medium">{stat.label}</p>
+            </div>
+          ))}
+        </div>
       </motion.div>
 
-      {/* Menu Items */}
+      {/* Subject Progress Mini Cards */}
       <motion.div
-        className="rounded-2xl overflow-hidden divide-y divide-border bg-card border border-border"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
+        <h3 className="text-xs sm:text-sm font-bold text-foreground mb-2.5 px-1">{t("subjectProgress")}</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {syllabus.map((subject) => {
+            const progress = getSubjectProgress(subject.id);
+            const sColor = exam?.color || "217 91% 60%";
+            return (
+              <div
+                key={subject.id}
+                className="rounded-xl p-3 flex items-center gap-2.5"
+                style={{
+                  background: `hsl(var(--card))`,
+                  border: `1px solid hsl(var(--border))`,
+                }}
+              >
+                <span className="text-lg">{subject.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] sm:text-xs font-semibold text-foreground truncate">
+                    {language === "hi" ? subject.nameHi : subject.name}
+                  </p>
+                  <div className="w-full h-1.5 rounded-full bg-secondary mt-1 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${progress}%`,
+                        background: progress === 100 ? "hsl(142 71% 45%)" : `hsl(${sColor})`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold text-muted-foreground">{progress}%</span>
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* Settings Menu */}
+      <motion.div
+        className="rounded-2xl overflow-hidden bg-card border border-border"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+      >
         {menuItems.map((item, index) => (
           <button
             key={index}
-            className="w-full flex items-center gap-4 p-4 active:bg-secondary/50 transition-colors"
+            className="w-full flex items-center gap-3.5 p-3.5 sm:p-4 active:bg-secondary/50 transition-colors border-b border-border last:border-0"
             onClick={item.onClick}
           >
             {item.icon}
-            <span className="text-sm font-medium text-foreground flex-1 text-left">{item.label}</span>
-            {item.trailing && <span className="text-sm text-primary font-medium">{item.trailing}</span>}
+            <span className="text-xs sm:text-sm font-medium text-foreground flex-1 text-left">{item.label}</span>
+            {item.trailing && (
+              <span className="text-xs font-semibold" style={{ color: `hsl(${item.accent})` }}>
+                {item.trailing}
+              </span>
+            )}
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </button>
+        ))}
+      </motion.div>
+
+      {/* Social Links */}
+      <motion.div
+        className="flex gap-2.5"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        {socialItems.map((item, index) => (
+          <button
+            key={index}
+            className="flex-1 flex items-center justify-center gap-2 p-3 sm:p-3.5 rounded-2xl bg-card border border-border active:scale-95 transition-transform"
+            onClick={item.onClick}
+          >
+            {item.icon}
+            <span className="text-[10px] sm:text-xs font-medium text-foreground hidden sm:inline">{item.label}</span>
           </button>
         ))}
       </motion.div>
 
       {/* Reset */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
         {!showReset ? (
           <button
-            className="w-full rounded-2xl bg-card border border-border p-4 flex items-center gap-4 active:bg-destructive/10 transition-colors"
+            className="w-full rounded-2xl bg-destructive/5 border border-destructive/20 p-3.5 sm:p-4 flex items-center gap-3 active:bg-destructive/10 transition-colors"
             onClick={() => setShowReset(true)}
           >
-            <RotateCcw size={20} className="text-destructive" />
-            <span className="text-sm font-medium text-destructive">{t("resetProgress")}</span>
+            <RotateCcw size={18} className="text-destructive" />
+            <span className="text-xs sm:text-sm font-medium text-destructive">{t("resetProgress")}</span>
           </button>
         ) : (
           <div className="rounded-2xl bg-card border border-destructive/30 p-4 space-y-3">
-            <p className="text-sm text-foreground">{t("resetConfirm")}</p>
+            <p className="text-xs sm:text-sm text-foreground">{t("resetConfirm")}</p>
             <div className="flex gap-3">
               <button
-                className="flex-1 bg-secondary rounded-xl p-3 text-sm font-medium text-foreground active:scale-95 transition-transform"
+                className="flex-1 bg-secondary rounded-xl p-3 text-xs sm:text-sm font-medium text-foreground active:scale-95 transition-transform"
                 onClick={() => setShowReset(false)}
               >
                 {t("cancel")}
               </button>
               <button
-                className="flex-1 bg-destructive rounded-xl p-3 text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
+                className="flex-1 bg-destructive rounded-xl p-3 text-xs sm:text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
                 onClick={() => { resetProgress(); setShowReset(false); }}
               >
                 {t("reset")}

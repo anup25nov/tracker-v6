@@ -70,30 +70,30 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         )}
       </motion.div>
 
-      {/* Hero Progress */}
+      {/* Hero Progress - Green themed */}
       <motion.div
         className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6"
         style={{
-          background: `linear-gradient(135deg, hsl(${exam?.color || "217 91% 60%"} / 0.15), hsl(${exam?.color || "217 91% 60%"} / 0.05))`,
-          border: `1px solid hsl(${exam?.color || "217 91% 60%"} / 0.2)`,
+          background: `linear-gradient(135deg, hsl(142 71% 45% / 0.18), hsl(142 71% 45% / 0.05))`,
+          border: `1px solid hsl(142 71% 45% / 0.25)`,
         }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
         <div className="flex items-center gap-4 sm:gap-5">
-          <ProgressRing percent={overall.percent} size={95} strokeWidth={8} />
+          <ProgressRing percent={overall.percent} size={95} strokeWidth={8} color="142 71% 45%" />
           <div className="flex-1 space-y-1.5 sm:space-y-2">
             <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {t("overallProgress")}
             </p>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl sm:text-3xl font-extrabold text-foreground">{overall.completed}</span>
+              <span className="text-2xl sm:text-3xl font-extrabold" style={{ color: "hsl(142 71% 45%)" }}>{overall.completed}</span>
               <span className="text-xs sm:text-sm text-muted-foreground">/ {overall.total}</span>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground">{t("topicsCompleted")}</p>
             {overall.percent > 0 && (
-              <div className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold" style={{ color: `hsl(${exam?.color || "217 91% 60%"})` }}>
+              <div className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold" style={{ color: "hsl(142 71% 45%)" }}>
                 <Flame size={12} /> {overall.percent >= 50 ? "🔥" : "📈"} {t("letsGo")}
               </div>
             )}

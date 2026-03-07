@@ -4,33 +4,32 @@ interface ProgressRingProps {
   percent: number;
   size?: number;
   strokeWidth?: number;
+  color?: string;
 }
 
-const ProgressRing = ({ percent, size = 120, strokeWidth = 8 }: ProgressRingProps) => {
+const ProgressRing = ({ percent, size = 120, strokeWidth = 8, color }: ProgressRingProps) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (percent / 100) * circumference;
-
-  // Responsive: clamp size for very small screens
-  const displaySize = size;
+  const strokeColor = color ? `hsl(${color})` : "hsl(var(--primary))";
 
   return (
     <div className="relative inline-flex items-center justify-center shrink-0">
-      <svg width={displaySize} height={displaySize} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90">
         <circle
-          cx={displaySize / 2}
-          cy={displaySize / 2}
+          cx={size / 2}
+          cy={size / 2}
           r={radius}
           fill="none"
           stroke="hsl(var(--progress-track))"
           strokeWidth={strokeWidth}
         />
         <motion.circle
-          cx={displaySize / 2}
-          cy={displaySize / 2}
+          cx={size / 2}
+          cy={size / 2}
           r={radius}
           fill="none"
-          stroke="hsl(var(--primary))"
+          stroke={strokeColor}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
