@@ -5,6 +5,8 @@ import { allExams, countExamUnits } from "@/data/syllabus";
 import { Lock } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
 
+const EXAM_IDS_ON_SELECT = ["ssc-cgl", "railway", "bank"] as const;
+
 interface ExamSelectScreenProps {
   onExamSelected?: () => void;
 }
@@ -12,9 +14,10 @@ interface ExamSelectScreenProps {
 const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
   const { t, language } = useTranslation();
   const selectExam = useAppStore((s) => s.selectExam);
+  const examsToShow = allExams.filter((e) => EXAM_IDS_ON_SELECT.includes(e.id as (typeof EXAM_IDS_ON_SELECT)[number]));
 
   const handleSelect = (examId: string) => {
-    if (examId !== "ssc-cgl") return; // Only CGL is available
+    if (examId !== "ssc-cgl") return; // Only SSC CGL is available; Railway & Bank coming soon
     selectExam(examId);
     onExamSelected?.();
   };
@@ -33,7 +36,7 @@ const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
       </motion.div>
 
       <div className="w-full max-w-md space-y-4">
-        {allExams.map((exam, index) => {
+        {examsToShow.map((exam, index) => {
           const isAvailable = exam.id === "ssc-cgl";
           const totalTopics = countExamUnits(exam);
           return (
@@ -71,7 +74,11 @@ const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
                     {language === "hi" ? exam.descriptionHi : exam.description}
                   </p>
                   <p className="text-xs mt-1" style={{ color: `hsl(${exam.color})` }}>
-                    {exam.subjects.length} {t("subjects")} • {totalTopics} {t("topics")}
+                    {isAvailable
+                      ? `${exam.subjects.length} ${t("subjects")} • ${totalTopics} ${t("topics")}`
+                      : language === "hi"
+                        ? "जल्द आ रहा है"
+                        : "Coming soon"}
                   </p>
                 </div>
                 {isAvailable ? (
