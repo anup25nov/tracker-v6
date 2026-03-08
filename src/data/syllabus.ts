@@ -164,18 +164,18 @@ export const allExams: Exam[] = [
           
               
           {
-            id:"q7",
+            id:"q6",
             name:"Statistics",
             nameHi:"सांख्यिकी",
             completed:false,
             subtopics:[
-              { id:"q7-1", name:"Mean", nameHi:"माध्य", completed:false },
-              { id:"q7-2", name:"Median", nameHi:"मध्यिका", completed:false },
-              { id:"q7-3", name:"Mode", nameHi:"बहुलक", completed:false },
-              { id:"q7-4", name:"Standard Deviation", nameHi:"मानक विचलन", completed:false },
-              { id:"q7-5", name:"Histogram", nameHi:"हिस्टोग्राम", completed:false },
-              { id:"q7-6", name:"Frequency Polygon", nameHi:"फ्रीक्वेंसी पॉलीगॉन", completed:false },
-              { id:"q7-7", name:"Probability", nameHi:"प्रायिकता", completed:false }
+              { id:"q6-1", name:"Mean", nameHi:"माध्य", completed:false },
+              { id:"q6-2", name:"Median", nameHi:"मध्यिका", completed:false },
+              { id:"q6-3", name:"Mode", nameHi:"बहुलक", completed:false },
+              { id:"q6-4", name:"Standard Deviation", nameHi:"मानक विचलन", completed:false },
+              { id:"q6-5", name:"Histogram", nameHi:"हिस्टोग्राम", completed:false },
+              { id:"q6-6", name:"Frequency Polygon", nameHi:"फ्रीक्वेंसी पॉलीगॉन", completed:false },
+              { id:"q6-7", name:"Probability", nameHi:"प्रायिकता", completed:false }
             ]
           }
         
@@ -268,18 +268,16 @@ export const allExams: Exam[] = [
             nameHi:"व्याकरण",
             completed:false,
             subtopics:[
-            { id:"e1-1", name:"Parts of Speech", nameHi:"शब्द भेद", completed:false },
-            { id:"e1-2", name:"Tenses", nameHi:"काल", completed:false },
-            { id:"e1-3", name:"Articles", nameHi:"आर्टिकल", completed:false },
-            { id:"e1-4", name:"Prepositions", nameHi:"पूर्वसर्ग", completed:false },
-            { id:"e1-5", name:"Conjunctions", nameHi:"समुच्चय बोधक", completed:false },
-            { id:"e1-6", name:"Active Passive Voice", nameHi:"कर्तृ कर्म वाच्य", completed:false },
-            { id:"e1-7", name:"Direct Indirect Speech", nameHi:"प्रत्यक्ष अप्रत्यक्ष कथन", completed:false },
-            { id:"e1-8", name:"Subject Verb Agreement", nameHi:"कर्ता क्रिया सामंजस्य", completed:false },
-            
-            // Missing
-            { id:"e1-9", name:"Adjectives", nameHi:"विशेषण", completed:false },
-            { id:"e1-10", name:"Adverbs", nameHi:"क्रिया विशेषण", completed:false }
+              { id:"e1-1", name:"Parts of Speech", nameHi:"शब्द भेद", completed:false },
+              { id:"e1-2", name:"Tenses", nameHi:"काल", completed:false },
+              { id:"e1-3", name:"Articles", nameHi:"आर्टिकल", completed:false },
+              { id:"e1-4", name:"Prepositions", nameHi:"पूर्वसर्ग", completed:false },
+              { id:"e1-5", name:"Conjunctions", nameHi:"समुच्चय बोधक", completed:false },
+              { id:"e1-6", name:"Active Passive Voice", nameHi:"कर्तृ कर्म वाच्य", completed:false },
+              { id:"e1-7", name:"Direct Indirect Speech", nameHi:"प्रत्यक्ष अप्रत्यक्ष कथन", completed:false },
+              { id:"e1-8", name:"Subject Verb Agreement", nameHi:"कर्ता क्रिया सामंजस्य", completed:false },
+              { id:"e1-9", name:"Adjectives", nameHi:"विशेषण", completed:false },
+              { id:"e1-10", name:"Adverbs", nameHi:"क्रिया विशेषण", completed:false }
             ]
             },
             
@@ -289,43 +287,36 @@ export const allExams: Exam[] = [
             nameHi:"शब्दावली",
             completed:false,
             subtopics:[
-            { id:"e2-1", name:"Synonyms", nameHi:"पर्यायवाची", completed:false },
-            { id:"e2-2", name:"Antonyms", nameHi:"विलोम शब्द", completed:false },
-            { id:"e2-3", name:"One Word Substitution", nameHi:"एक शब्द प्रतिस्थापन", completed:false },
-            { id:"e2-4", name:"Idioms & Phrases", nameHi:"मुहावरे और लोकोक्तियाँ", completed:false },
-            { id:"e2-5", name:"Spelling Correction", nameHi:"वर्तनी सुधार", completed:false },
-            
-            // Missing
-            { id:"e2-6", name:"Homonyms", nameHi:"समरूपी शब्द", completed:false }
+              { id:"e2-1", name:"Synonyms", nameHi:"पर्यायवाची", completed:false },
+              { id:"e2-2", name:"Antonyms", nameHi:"विलोम शब्द", completed:false },
+              { id:"e2-3", name:"One Word Substitution", nameHi:"एक शब्द प्रतिस्थापन", completed:false },
+              { id:"e2-4", name:"Idioms & Phrases", nameHi:"मुहावरे और लोकोक्तियाँ", completed:false },
+              { id:"e2-5", name:"Spelling Correction", nameHi:"वर्तनी सुधार", completed:false },
+              { id:"e2-6", name:"Homonyms", nameHi:"समरूपी शब्द", completed:false }
             ]
             },
             
             {
-            id:"e3",
-            name:"Sentence Usage",
-            nameHi:"वाक्य प्रयोग",
-            completed:false,
-            subtopics:[
-            { id:"e3-1", name:"Spotting Errors", nameHi:"त्रुटि पहचान", completed:false },
-            { id:"e3-2", name:"Sentence Improvement", nameHi:"वाक्य सुधार", completed:false },
-            { id:"e3-3", name:"Sentence Rearrangement", nameHi:"वाक्य क्रम", completed:false },
-            { id:"e3-4", name:"Fill in the Blanks", nameHi:"रिक्त स्थान भरें", completed:false },
-            
-            // Missing
-            { id:"e3-5", name:"Sentence Correction", nameHi:"वाक्य संशोधन", completed:false },
-            { id:"e3-6", name:"Para Jumbles", nameHi:"पैराग्राफ क्रम", completed:false }
-            ]
+              id:"e3",
+              name:"Sentence Usage",
+              nameHi:"वाक्य प्रयोग",
+              completed:false,
+              subtopics:[
+                { id:"e3-1", name:"Spotting Errors", nameHi:"त्रुटि पहचान", completed:false },
+                { id:"e3-2", name:"Fill in the Blanks", nameHi:"रिक्त स्थान भरें", completed:false },
+                { id:"e3-3", name:"Para Jumbles", nameHi:"पैराग्राफ क्रम", completed:false }
+              ]
             },
             
             {
-            id:"e4",
-            name:"Reading",
-            nameHi:"पठन",
-            completed:false,
-            subtopics:[
-            { id:"e4-1", name:"Reading Comprehension", nameHi:"पठन बोध", completed:false },
-            { id:"e4-2", name:"Cloze Test", nameHi:"क्लोज टेस्ट", completed:false }
-            ]
+              id:"e4",
+              name:"Reading",
+              nameHi:"पठन",
+              completed:false,
+              subtopics:[
+                { id:"e4-1", name:"Reading Comprehension", nameHi:"पठन बोध", completed:false },
+                { id:"e4-2", name:"Cloze Test", nameHi:"क्लोज टेस्ट", completed:false }
+              ]
             }
             
             ]
@@ -342,23 +333,18 @@ export const allExams: Exam[] = [
                   nameHi: "प्राचीन इतिहास",
                   completed: false,
                   subtopics: [
-                    { id: "t1-1", name: "Prehistoric Period", nameHi: "प्रागैतिहासिक काल", completed: false },
-                    { id: "t1-2", name: "Chalcolithic Age", nameHi: "ताम्रपाषाण युग", completed: false },
-                    { id: "t1-3", name: "Indus Valley Civilization", nameHi: "सिंधु घाटी सभ्यता", completed: false },
-                    { id: "t1-4", name: "Harappan Sites", nameHi: "हड़प्पा स्थल", completed: false },
-                    { id: "t1-5", name: "Vedic Age", nameHi: "वैदिक काल", completed: false },
-                    { id: "t1-6", name: "Vedic Literature", nameHi: "वैदिक साहित्य", completed: false },
-                    { id: "t1-7", name: "Vedangas", nameHi: "वेदांग", completed: false },
-                    { id: "t1-8", name: "Schools of Philosophy", nameHi: "दर्शन के विद्यालय", completed: false },
-                    { id: "t1-9", name: "Jainism", nameHi: "जैन धर्म", completed: false },
-                    { id: "t1-10", name: "Buddhism", nameHi: "बौद्ध धर्म", completed: false },
-                    { id: "t1-11", name: "Mahajanapadas", nameHi: "महाजनपद", completed: false },
-                    { id: "t1-12", name: "Persian & Greek Invasion", nameHi: "फारसी और यूनानी आक्रमण", completed: false },
-                    { id: "t1-13", name: "Mauryan Empire", nameHi: "मौर्य साम्राज्य", completed: false },
-                    { id: "t1-14", name: "Post-Mauryan Period", nameHi: "मौर्योत्तर काल", completed: false },
-                    { id: "t1-15", name: "Sangam Age", nameHi: "संगम काल", completed: false },
-                    { id: "t1-16", name: "Gupta Empire", nameHi: "गुप्त साम्राज्य", completed: false },
-                    { id: "t1-17", name: "Post-Gupta Period", nameHi: "गुप्तोत्तर काल", completed: false },
+                    { id: "t1-1", name: "Stone Age", nameHi: "पत्थर युग", completed: false },
+                    { id: "t1-2", name: "Indus Valley Civilization", nameHi: "सिंधु घाटी सभ्यता", completed: false },
+                    { id: "t1-3", name: "Vedic Age", nameHi: "वैदिक काल", completed: false },
+                    { id: "t1-4", name: "Jainism", nameHi: "जैन धर्म", completed: false },
+                    { id: "t1-5", name: "Buddhism", nameHi: "बौद्ध धर्म", completed: false },
+                    { id: "t1-6", name: "Mahajanapadas", nameHi: "महाजनपद", completed: false },
+                    { id: "t1-7", name: "Persian & Greek Invasion", nameHi: "फारसी और यूनानी आक्रमण", completed: false },
+                    { id: "t1-8", name: "Mauryan Empire", nameHi: "मौर्य साम्राज्य", completed: false },
+                    { id: "t1-9", name: "Post-Mauryan Period", nameHi: "मौर्योत्तर काल", completed: false },
+                    { id: "t1-10", name: "Sangam Age", nameHi: "संगम काल", completed: false },
+                    { id: "t1-11", name: "Gupta Empire", nameHi: "गुप्त साम्राज्य", completed: false },
+                    { id: "t1-12", name: "Post-Gupta Period", nameHi: "गुप्तोत्तर काल", completed: false },
                   ],
                 },
                 {
@@ -432,18 +418,29 @@ export const allExams: Exam[] = [
                   nameHi: "राजव्यवस्था",
                   completed: false,
                   subtopics: [
-                    { id: "ga-pol-1", name: "Indian Constitution", nameHi: "भारतीय संविधान", completed: false },
-                    { id: "ga-pol-2", name: "Preamble", nameHi: "प्रस्तावना", completed: false },
-                    { id: "ga-pol-3", name: "Fundamental Rights", nameHi: "मौलिक अधिकार", completed: false },
-                    { id: "ga-pol-4", name: "Directive Principles", nameHi: "निर्देशक सिद्धांत", completed: false },
-                    { id: "ga-pol-5", name: "Fundamental Duties", nameHi: "मौलिक कर्तव्य", completed: false },
-                    { id: "ga-pol-6", name: "Union Executive", nameHi: "केंद्रीय कार्यपालिका", completed: false },
-                    { id: "ga-pol-7", name: "Parliament", nameHi: "संसद", completed: false },
-                    { id: "ga-pol-8", name: "Judiciary", nameHi: "न्यायपालिका", completed: false },
-                    { id: "ga-pol-9", name: "State Executive & Legislature", nameHi: "राज्य कार्यपालिका और विधानमंडल", completed: false },
-                    { id: "ga-pol-10", name: "Local Government", nameHi: "स्थानीय स्वशासन", completed: false },
-                    { id: "ga-pol-11", name: "Constitutional Bodies", nameHi: "संवैधानिक निकाय", completed: false },
-                    { id: "ga-pol-12", name: "Political System & Elections", nameHi: "राजनीतिक व्यवस्था और चुनाव", completed: false },
+                      { id: "ga-pol-1", name: "Indian Constitution & its Sources", nameHi: "भारतीय संविधान एवं उसके स्रोत", completed: false },
+                      { id: "ga-pol-2", name: "Preamble & Schedules", nameHi: "प्रस्तावना एवं अनुसूचियाँ", completed: false },
+                      { id: "ga-pol-3", name: "Citizenship", nameHi: "नागरिकता", completed: false },
+                      { id: "ga-pol-4", name: "Fundamental Rights", nameHi: "मौलिक अधिकार", completed: false },
+                      { id: "ga-pol-5", name: "Directive Principles", nameHi: "निर्देशक सिद्धांत", completed: false },
+                      { id: "ga-pol-6", name: "Fundamental Duties", nameHi: "मौलिक कर्तव्य", completed: false },
+                      { id: "ga-pol-7", name: "Union Executive", nameHi: "केंद्रीय कार्यपालिका", completed: false },
+                      { id: "ga-pol-8", name: "President & Vice President", nameHi: "राष्ट्रपति और उपराष्ट्रपति", completed: false },
+                      { id: "ga-pol-9", name: "Prime Minister & Council of Ministers", nameHi: "प्रधानमंत्री और मंत्रिपरिषद", completed: false },
+                      { id: "ga-pol-10", name: "Parliament", nameHi: "संसद", completed: false },
+                      { id: "ga-pol-11", name: "Judiciary", nameHi: "न्यायपालिका", completed: false },
+                      { id: "ga-pol-14", name: "Supreme Court & High Courts", nameHi: "सुप्रीम कोर्ट और उच्च न्यायालय", completed: false },
+                      { id: "ga-pol-15", name: "Writs", nameHi: "रिट", completed: false },
+                      { id: "ga-pol-12", name: "State Executive & Legislature", nameHi: "राज्य कार्यपालिका और विधानमंडल", completed: false },
+                      { id: "ga-pol-13", name: "Governors & Chief Ministers", nameHi: "राज्यपाल और मुख्यमंत्री", completed: false },
+                      { id: "ga-pol-14", name: "State Assemblies & Legislative Councils", nameHi: "राज्य विधानसभा और विधान परिषद", completed: false },
+                      { id: "ga-pol-15", name: "Centre-State Relations", nameHi: "केंद्र-राज्य संबंध", completed: false },
+                      { id: "ga-pol-16", name: "Union Territories", nameHi: "केंद्र शासित प्रदेश", completed: false },
+                      { id: "ga-pol-17", name: "Local Government & Panchayati Raj", nameHi: "स्थानीय स्वशासन और पंचायती राज", completed: false },
+                      { id: "ga-pol-18", name: "Constitutional Bodies", nameHi: "संवैधानिक निकाय", completed: false },
+                      { id: "ga-pol-19", name: "Election Commission & Elections", nameHi: "चुनाव आयोग और चुनाव", completed: false },
+                      { id: "ga-pol-20", name: "Amendment of Constitution", nameHi: "संविधान संशोधन", completed: false },
+                      { id: "ga-pol-21", name: "Emergency Provisions", nameHi: "आपातकालीन प्रावधान", completed: false },
                   ],
                 },
                 {
