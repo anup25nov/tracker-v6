@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent as firebaseLogEvent, Analytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { Capacitor } from "@capacitor/core";
 
 // Firebase config — these are all publishable client-side keys
 const firebaseConfig = {
@@ -62,8 +63,9 @@ export const saveUserToFirestore = async (user: User) => {
 };
 
 export const signInWithGoogle = async (): Promise<User | null> => {
-  const isEmbedded = window.self !== window.top;
-  if (isEmbedded) {
+  // Use redirect in embedded contexts (iframe) or on native (Capacitor) — popup often fails in WebView
+  const useRedirect = window.self !== window.top || Capacitor.isNativePlatform();
+  if (useRedirect) {
     await signInWithRedirect(auth, googleProvider);
     return null;
   }

@@ -7,14 +7,28 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Handle redirect result first (for iframe sign-in)
-    handleRedirectResult().catch(console.error);
+    let cancelled = false;
+    let unsubscribe: (() => void) | null = null;
 
-    const unsubscribe = onAuthChange((firebaseUser) => {
-      setUser(firebaseUser);
-      setLoading(false);
-    });
-    return unsubscribe;
+    const init = async () => {
+      // Process redirect result first (required after Google redirect sign-in)
+      try {
+        await handleRedirectResult();
+      } catch (e) {
+        console.error("Redirect result error:", e);
+      }
+      if (cancelled) return;
+      unsubscribe = onAuthChange((firebaseUser) => {
+        setUser(firebaseUser);
+        setLoading(false);
+      });
+    };
+
+    init();
+    return () => {
+      cancelled = true;
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   return { user, loading };
