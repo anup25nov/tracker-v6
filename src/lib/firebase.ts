@@ -41,21 +41,36 @@ export const saveUserToFirestore = async (user: User) => {
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
 
+    const providerData = user.providerData?.[0];
+
     if (!userSnap.exists()) {
-      // New user — create profile
+      // New user — create full profile
       await setDoc(userRef, {
         uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
+        email: user.email || providerData?.email || null,
+        displayName: user.displayName || providerData?.displayName || null,
+        photoURL: user.photoURL || providerData?.photoURL || null,
+        phoneNumber: user.phoneNumber || providerData?.phoneNumber || null,
+        providerId: providerData?.providerId || "unknown",
+        emailVerified: user.emailVerified,
         createdAt: serverTimestamp(),
         lastLoginAt: serverTimestamp(),
+        loginCount: 1,
       });
       console.log("New user profile created in Firestore");
     } else {
-      // Existing user — update last login
-      await setDoc(userRef, { lastLoginAt: serverTimestamp() }, { merge: true });
-      console.log("User last login updated in Firestore");
+      // Existing user — update last login & refresh profile data
+      const existing = userSnap.data();
+      await setDoc(userRef, {
+        email: user.email || providerData?.email || existing?.email || null,
+        displayName: user.displayName || providerData?.displayName || existing?.displayName || null,
+        photoURL: user.photoURL || providerData?.photoURL || existing?.photoURL || null,
+        phoneNumber: user.phoneNumber || providerData?.phoneNumber || existing?.phoneNumber || null,
+        emailVerified: user.emailVerified,
+        lastLoginAt: serverTimestamp(),
+        loginCount: (existing?.loginCount || 0) + 1,
+      }, { merge: true });
+      console.log("User profile updated in Firestore");
     }
   } catch (error) {
     console.error("Error saving user to Firestore:", error);
