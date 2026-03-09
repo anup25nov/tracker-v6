@@ -464,17 +464,6 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
           )}
         </motion.div>
       )}
-      {/* Chat FAB */}
-      <motion.button
-        onClick={onOpenChat}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 flex items-center justify-center active:scale-90 transition-transform z-50"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
-        whileHover={{ scale: 1.05 }}
-      >
-        <Sparkles size={24} className="text-primary-foreground" />
-      </motion.button>
     </div>
   );
 };
