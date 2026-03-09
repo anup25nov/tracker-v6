@@ -132,5 +132,5 @@ ${progressBlock}
 1. [First suggested question]
 2. [Second suggested question]
 
-Make the suggestions contextually relevant to what was just discussed.`;`;
+Make the suggestions contextually relevant to what was just discussed.`;
 }
