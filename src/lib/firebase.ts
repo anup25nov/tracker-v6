@@ -63,9 +63,9 @@ export const saveUserToFirestore = async (user: User) => {
 };
 
 export const signInWithGoogle = async (): Promise<User | null> => {
-  // Use redirect in embedded contexts (iframe) or on native (Capacitor) — popup often fails in WebView
-  const useRedirect = window.self !== window.top || Capacitor.isNativePlatform();
-  if (useRedirect) {
+  // Only use redirect on native (Capacitor) where popup is blocked by WebView.
+  // In all web contexts (including iframes like Lovable preview), popup works best.
+  if (Capacitor.isNativePlatform()) {
     await signInWithRedirect(auth, googleProvider);
     return null;
   }
