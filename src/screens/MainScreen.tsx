@@ -7,7 +7,7 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
-import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Sun, Moon, ChevronDown, LogOut, Sparkles } from "lucide-react";
+import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Sun, Moon, ChevronDown, LogOut } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
 import { logScreenView, logExamSelected, firebaseSignOut } from "@/lib/firebase";
 import { useEffect } from "react";
@@ -215,12 +215,72 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
               <span className="text-xs sm:text-sm text-muted-foreground">/ {overall.total}</span>
             </div>
             <p className="text-[10px] sm:text-xs text-muted-foreground">{t("topicsCompleted")}</p>
-            {/* {overall.percent > 0 && (
-              <div className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold" style={{ color: "hsl(142 71% 45%)" }}>
-                <Flame size={12} /> {overall.percent >= 50 ? "🔥" : "📈"} {t("letsGo")}
-              </div>
-            )} */}
           </div>
+
+          {/* AI Chat Button */}
+          <motion.button
+            onClick={onOpenChat}
+            className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))`,
+              boxShadow: `0 4px 15px hsl(var(--primary) / 0.3)`,
+            }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            {/* Sparkle particles */}
+            {[...Array(6)].map((_, i) => (
+              <motion.span
+                key={i}
+                className="absolute w-1 h-1 rounded-full bg-primary-foreground"
+                style={{
+                  top: `${20 + Math.random() * 60}%`,
+                  left: `${20 + Math.random() * 60}%`,
+                }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.2, 0],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  delay: i * 0.25,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
+            {/* Star sparkle icon */}
+            <motion.svg
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              fill="none"
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            >
+              {/* Main 4-point star */}
+              <motion.path
+                d="M12 2L13.5 9.5L20 12L13.5 14.5L12 22L10.5 14.5L4 12L10.5 9.5Z"
+                fill="hsl(var(--primary-foreground))"
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* Small sparkle top-right */}
+              <motion.circle
+                cx="18" cy="5" r="1.2"
+                fill="hsl(var(--primary-foreground))"
+                animate={{ opacity: [0.4, 1, 0.4], scale: [0.8, 1.3, 0.8] }}
+                transition={{ duration: 1.8, repeat: Infinity, delay: 0.3 }}
+              />
+              {/* Small sparkle bottom-left */}
+              <motion.circle
+                cx="6" cy="19" r="0.9"
+                fill="hsl(var(--primary-foreground))"
+                animate={{ opacity: [0.3, 1, 0.3], scale: [0.7, 1.4, 0.7] }}
+                transition={{ duration: 1.6, repeat: Infinity, delay: 0.6 }}
+              />
+            </motion.svg>
+          </motion.button>
         </div>
       </motion.div>
 
@@ -404,17 +464,6 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
           )}
         </motion.div>
       )}
-      {/* Chat FAB */}
-      <motion.button
-        onClick={onOpenChat}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 flex items-center justify-center active:scale-90 transition-transform z-50"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
-        whileHover={{ scale: 1.05 }}
-      >
-        <Sparkles size={24} className="text-primary-foreground" />
-      </motion.button>
     </div>
   );
 };
