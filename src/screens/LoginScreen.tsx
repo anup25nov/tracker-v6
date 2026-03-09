@@ -27,14 +27,22 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithGoogle();
+      const firebaseUser = await signInWithGoogle();
+      if (firebaseUser) {
+        console.log("Login successful:", firebaseUser.email, firebaseUser.displayName);
+      }
+      // onLoginSuccess is called as fallback; useAuth will also detect the user via onAuthStateChanged
       onLoginSuccess();
     } catch (err: any) {
-      console.error("Login error:", err);
+      console.error("Login error:", err?.code, err?.message);
       if (err.code === "auth/popup-closed-by-user") {
         setError(null); // User cancelled, no error
+      } else if (err.code === "auth/unauthorized-domain") {
+        setError(language === "hi" 
+          ? "यह डोमेन अधिकृत नहीं है। Firebase Console में डोमेन जोड़ें।" 
+          : "This domain is not authorized. Add it in Firebase Console → Auth → Authorized domains.");
       } else {
-        setError(t("loginError"));
+        setError(`${t("loginError")} (${err.code || err.message || "unknown"})`);
       }
     } finally {
       setLoading(false);
