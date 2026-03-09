@@ -2,14 +2,20 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { initFirebase } from "./lib/firebase";
+import { setupGlobalErrorLogging } from "./lib/firestoreErrorLog";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // Apply saved theme or default to light
 const savedTheme = localStorage.getItem("theme");
 if (savedTheme === "dark") {
   document.documentElement.classList.add("dark");
 }
-// Default is light (no class needed)
 
 initFirebase();
+setupGlobalErrorLogging();
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);

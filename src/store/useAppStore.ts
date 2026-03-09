@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { allExams, Subject } from "@/data/syllabus";
 import { Language } from "@/data/translations";
+import { saveProgressToFirestore, loadProgressFromFirestore } from "@/lib/firestoreSync";
+import { auth } from "@/lib/firebase";
 
 interface AchievementEvent {
   subjectId: string;
@@ -27,6 +29,8 @@ interface AppState {
   getWeakestSubject: () => Subject | null;
   getStrongestSubject: () => Subject | null;
   getFirstIncompleteSubject: () => Subject | null;
+  loadFromFirestore: (email: string) => Promise<void>;
+  syncToFirestore: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -40,8 +44,6 @@ export const useAppStore = create<AppState>()(
 
       selectExam: (examId) => {
         const state = get();
-        // If same exam is selected again and we already have syllabus loaded,
-        // keep existing progress instead of resetting everything.
         if (state.selectedExamId === examId && state.syllabus.length > 0) {
           set({ selectedExamId: examId });
           return;
@@ -56,6 +58,16 @@ export const useAppStore = create<AppState>()(
           achievedMilestones: {},
           lastAchievement: null,
         });
+
+        // Auto-load from Firestore if user is logged in
+        const email = auth.currentUser?.email;
+        if (email) {
+          loadProgressFromFirestore(email, examId, freshSyllabus).then((saved) => {
+            if (saved) {
+              set({ syllabus: saved.syllabus, achievedMilestones: saved.achievedMilestones });
+            }
+          });
+        }
       },
 
       toggleTopic: (subjectId, topicId, subtopicId) => {
@@ -112,6 +124,13 @@ export const useAppStore = create<AppState>()(
         }
 
         set({ syllabus: newSyllabus, achievedMilestones: newMilestones, lastAchievement: newAchievement });
+
+        // Sync to Firestore after every toggle
+        const email = auth.currentUser?.email;
+        const examId = get().selectedExamId;
+        if (email && examId) {
+          saveProgressToFirestore(email, examId, newSyllabus, newMilestones);
+        }
       },
 
       setLanguage: (lang) => set({ language: lang }),
@@ -121,11 +140,17 @@ export const useAppStore = create<AppState>()(
         if (!state.selectedExamId) return;
         const exam = allExams.find((e) => e.id === state.selectedExamId);
         if (!exam) return;
+        const freshSyllabus = JSON.parse(JSON.stringify(exam.subjects)) as Subject[];
         set({
-          syllabus: JSON.parse(JSON.stringify(exam.subjects)),
+          syllabus: freshSyllabus,
           achievedMilestones: {},
           lastAchievement: null,
         });
+        // Sync reset to Firestore
+        const email = auth.currentUser?.email;
+        if (email) {
+          saveProgressToFirestore(email, state.selectedExamId, freshSyllabus, {});
+        }
       },
 
       clearAchievement: () => set({ lastAchievement: null }),
@@ -242,6 +267,23 @@ export const useAppStore = create<AppState>()(
             return !t.completed;
           })
         ) || null;
+      },
+
+      loadFromFirestore: async (email: string) => {
+        const state = get();
+        if (!state.selectedExamId || state.syllabus.length === 0) return;
+        const saved = await loadProgressFromFirestore(email, state.selectedExamId, state.syllabus);
+        if (saved) {
+          set({ syllabus: saved.syllabus, achievedMilestones: saved.achievedMilestones });
+        }
+      },
+
+      syncToFirestore: () => {
+        const state = get();
+        const email = auth.currentUser?.email;
+        if (email && state.selectedExamId) {
+          saveProgressToFirestore(email, state.selectedExamId, state.syllabus, state.achievedMilestones);
+        }
       },
     }),
     { name: "ssc-tracker-v2" }

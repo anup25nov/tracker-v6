@@ -2,18 +2,20 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/hooks/useAuth";
 import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
-import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Flame, Sun, Moon, ChevronDown } from "lucide-react";
+import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Sun, Moon, ChevronDown, LogOut, Sparkles } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
-import { logScreenView, logExamSelected } from "@/lib/firebase";
+import { logScreenView, logExamSelected, firebaseSignOut } from "@/lib/firebase";
 import { useEffect } from "react";
 
 interface MainScreenProps {
   onSelectSubject: (subjectId: string) => void;
   onChangeExam: () => void;
+  onOpenChat: () => void;
 }
 
 const TelegramIcon = () => (
@@ -74,8 +76,9 @@ const ShareIcon = () => (
   </svg>
 );
 
-const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
+const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenProps) => {
   const { t, language } = useTranslation();
+  const { user } = useAuth();
   const syllabus = useAppStore((s) => s.syllabus);
   const selectedExamId = useAppStore((s) => s.selectedExamId);
   const getSubjectProgress = useAppStore((s) => s.getSubjectProgress);
@@ -84,6 +87,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
   const setLanguage = useAppStore((s) => s.setLanguage);
   const resetProgress = useAppStore((s) => s.resetProgress);
   const [showReset, setShowReset] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
 
   const exam = allExams.find((e) => e.id === selectedExamId);
@@ -362,6 +366,55 @@ const MainScreen = ({ onSelectSubject, onChangeExam }: MainScreenProps) => {
           </div>
         )}
       </motion.div>
+
+      {/* Logout */}
+      {user && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+          {!showLogout ? (
+            <button
+              className="w-full rounded-2xl bg-card border border-border p-3.5 sm:p-4 flex items-center gap-3 active:bg-secondary/50 transition-colors"
+              onClick={() => setShowLogout(true)}
+            >
+              <LogOut size={18} className="text-muted-foreground" />
+              <span className="text-xs sm:text-sm font-medium text-foreground">{t("logout")}</span>
+              <span className="ml-auto text-[10px] text-muted-foreground truncate max-w-[140px]">{user.email}</span>
+            </button>
+          ) : (
+            <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
+              <p className="text-xs sm:text-sm text-foreground">{t("logoutConfirm")}</p>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 bg-secondary rounded-xl p-3 text-xs sm:text-sm font-medium text-foreground active:scale-95 transition-transform"
+                  onClick={() => setShowLogout(false)}
+                >
+                  {t("cancel")}
+                </button>
+                <button
+                  className="flex-1 bg-destructive rounded-xl p-3 text-xs sm:text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
+                  onClick={() => {
+                    firebaseSignOut();
+                    localStorage.removeItem("skipped-login");
+                    setShowLogout(false);
+                  }}
+                >
+                  {t("logout")}
+                </button>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      )}
+      {/* Chat FAB */}
+      <motion.button
+        onClick={onOpenChat}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 flex items-center justify-center active:scale-90 transition-transform z-50"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
+        whileHover={{ scale: 1.05 }}
+      >
+        <Sparkles size={24} className="text-primary-foreground" />
+      </motion.button>
     </div>
   );
 };
