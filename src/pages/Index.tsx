@@ -13,6 +13,7 @@ const MainScreen = lazy(() => import("@/screens/MainScreen"));
 const TopicsScreen = lazy(() => import("@/screens/TopicsScreen"));
 const ExamSelectScreen = lazy(() => import("@/screens/ExamSelectScreen"));
 const ChatScreen = lazy(() => import("@/screens/ChatScreen"));
+const ProfileScreen = lazy(() => import("@/screens/ProfileScreen"));
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
