@@ -56,12 +56,21 @@ const Index = () => {
   useEffect(() => { showProfileRef.current = showProfile; }, [showProfile]);
   useEffect(() => { activeQuizRef.current = activeQuiz; }, [activeQuiz]);
 
-  // Load Firestore data when user logs in
+  // Load Firestore data when user logs in + seed quiz data once
   useEffect(() => {
     if (user?.uid) {
       const store = useAppStore.getState();
       if (store.selectedExamId && store.syllabus.length > 0) {
         store.loadFromFirestore(user.uid);
+      }
+      // Seed sample quiz data (idempotent - uses setDoc)
+      const seeded = localStorage.getItem("quiz_seeded");
+      if (!seeded) {
+        import("@/lib/seedQuiz").then(({ seedSampleQuiz }) => {
+          seedSampleQuiz().then(() => {
+            localStorage.setItem("quiz_seeded", "true");
+          }).catch(console.error);
+        });
       }
     }
   }, [user]);
