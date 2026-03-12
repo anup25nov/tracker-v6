@@ -219,10 +219,16 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile }
         </button>
 
         <button
-          onClick={toggleTheme}
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-secondary active:scale-90 transition-transform"
+          onClick={onOpenProfile}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center overflow-hidden active:scale-90 transition-transform border border-border bg-secondary"
         >
-          {isDark ? <Sun size={18} className="text-warning" /> : <Moon size={18} className="text-muted-foreground" />}
+          {user?.photoURL ? (
+            <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover rounded-xl" referrerPolicy="no-referrer" />
+          ) : (
+            <span className="text-sm font-bold text-primary">
+              {(userProfile?.displayName || user?.displayName || "U").charAt(0).toUpperCase()}
+            </span>
+          )}
         </button>
       </motion.div>
 
