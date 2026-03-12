@@ -16,6 +16,7 @@ interface MainScreenProps {
   onSelectSubject: (subjectId: string) => void;
   onChangeExam: () => void;
   onOpenChat: () => void;
+  onOpenProfile: () => void;
 }
 
 const TelegramIcon = () => (
