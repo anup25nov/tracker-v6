@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sun, Moon, Phone, Save, Loader2, User as UserIcon, Mail, Shield } from "lucide-react";
+import { ArrowLeft, Sun, Moon, Phone, Save, Loader2, User as UserIcon, Mail, LogOut } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/hooks/useAuth";
-import { getCurrentUserProfile, auth } from "@/lib/firebase";
+import { getCurrentUserProfile, auth, firebaseSignOut } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
