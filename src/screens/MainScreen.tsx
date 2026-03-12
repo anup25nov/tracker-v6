@@ -7,9 +7,9 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
-import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Sun, Moon, ChevronDown, LogOut, Copy, Share2 } from "lucide-react";
+import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, ChevronDown, Copy, Share2 } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
-import { logScreenView, logExamSelected, firebaseSignOut, getCurrentUserProfile } from "@/lib/firebase";
+import { logScreenView, logExamSelected, getCurrentUserProfile } from "@/lib/firebase";
 import { useEffect } from "react";
 
 interface MainScreenProps {
