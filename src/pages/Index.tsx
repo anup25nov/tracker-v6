@@ -39,6 +39,7 @@ const Index = () => {
   const selectedSubjectRef = useRef<string | null>(null);
   const showExamSelectRef = useRef(false);
   const showChatRef = useRef(false);
+  const showProfileRef = useRef(false);
 
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
   useEffect(() => { showExamSelectRef.current = showExamSelect; }, [showExamSelect]);
