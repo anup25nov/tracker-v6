@@ -91,7 +91,7 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenProps) => {
+const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile }: MainScreenProps) => {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const syllabus = useAppStore((s) => s.syllabus);
