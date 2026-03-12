@@ -44,6 +44,7 @@ const Index = () => {
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
   useEffect(() => { showExamSelectRef.current = showExamSelect; }, [showExamSelect]);
   useEffect(() => { showChatRef.current = showChat; }, [showChat]);
+  useEffect(() => { showProfileRef.current = showProfile; }, [showProfile]);
 
   // Load Firestore data when user logs in
   useEffect(() => {
