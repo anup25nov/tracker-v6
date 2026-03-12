@@ -14,6 +14,7 @@ const TopicsScreen = lazy(() => import("@/screens/TopicsScreen"));
 const ExamSelectScreen = lazy(() => import("@/screens/ExamSelectScreen"));
 const ChatScreen = lazy(() => import("@/screens/ChatScreen"));
 const ProfileScreen = lazy(() => import("@/screens/ProfileScreen"));
+const BoosterQuizScreen = lazy(() => import("@/screens/BoosterQuizScreen"));
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -25,6 +26,12 @@ const LoadingSpinner = () => (
   </div>
 );
 
+interface QuizInfo {
+  topicId: string;
+  topicName: string;
+  topicNameHi: string;
+}
+
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const selectedExamId = useAppStore((s) => s.selectedExamId);
@@ -32,6 +39,7 @@ const Index = () => {
   const [showExamSelect, setShowExamSelect] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [activeQuiz, setActiveQuiz] = useState<QuizInfo | null>(null);
   const [skippedLogin, setSkippedLogin] = useState(() => {
     return localStorage.getItem("skippedLogin") === "true";
   });
@@ -40,11 +48,13 @@ const Index = () => {
   const showExamSelectRef = useRef(false);
   const showChatRef = useRef(false);
   const showProfileRef = useRef(false);
+  const activeQuizRef = useRef<QuizInfo | null>(null);
 
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
   useEffect(() => { showExamSelectRef.current = showExamSelect; }, [showExamSelect]);
   useEffect(() => { showChatRef.current = showChat; }, [showChat]);
   useEffect(() => { showProfileRef.current = showProfile; }, [showProfile]);
+  useEffect(() => { activeQuizRef.current = activeQuiz; }, [activeQuiz]);
 
   // Load Firestore data when user logs in
   useEffect(() => {
@@ -65,6 +75,7 @@ const Index = () => {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const listener = CapacitorApp.addListener("backButton", () => {
+      if (activeQuizRef.current) { setActiveQuiz(null); return; }
       if (showProfileRef.current) { setShowProfile(false); return; }
       if (showChatRef.current) { setShowChat(false); return; }
       if (selectedSubjectRef.current) { setSelectedSubject(null); return; }
@@ -85,7 +96,6 @@ const Index = () => {
       <Suspense fallback={<LoadingSpinner />}>
         <LoginScreen
           onLoginSuccess={() => {
-            // If user is still null after this (skipped), mark as skipped
             setTimeout(() => {
               if (!useAuth) {
                 localStorage.setItem("skippedLogin", "true");
@@ -114,10 +124,30 @@ const Index = () => {
     );
   }
 
+  if (activeQuiz) {
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <BoosterQuizScreen
+          topicId={activeQuiz.topicId}
+          topicName={activeQuiz.topicName}
+          topicNameHi={activeQuiz.topicNameHi}
+          onBack={() => setActiveQuiz(null)}
+          onComplete={() => {}}
+        />
+      </Suspense>
+    );
+  }
+
   if (showProfile) {
     return (
       <Suspense fallback={<LoadingSpinner />}>
-        <ProfileScreen onBack={() => setShowProfile(false)} />
+        <ProfileScreen
+          onBack={() => setShowProfile(false)}
+          onStartQuiz={(topicId, topicName, topicNameHi) => {
+            setShowProfile(false);
+            setActiveQuiz({ topicId, topicName, topicNameHi });
+          }}
+        />
       </Suspense>
     );
   }
@@ -136,6 +166,9 @@ const Index = () => {
         <TopicsScreen
           subjectId={selectedSubject}
           onBack={() => setSelectedSubject(null)}
+          onStartQuiz={(topicId, topicName, topicNameHi) => {
+            setActiveQuiz({ topicId, topicName, topicNameHi });
+          }}
         />
       );
     }
@@ -155,7 +188,7 @@ const Index = () => {
       <Suspense fallback={<LoadingSpinner />}>
         <AnimatePresence mode="wait">
           <motion.div
-            key={selectedSubject || "main"}
+            key={selectedSubject || (activeQuiz ? "quiz" : "main")}
             initial={{ opacity: 0, x: selectedSubject ? 30 : 0 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0 }}
