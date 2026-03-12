@@ -65,6 +65,7 @@ const Index = () => {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const listener = CapacitorApp.addListener("backButton", () => {
+      if (showProfileRef.current) { setShowProfile(false); return; }
       if (showChatRef.current) { setShowChat(false); return; }
       if (selectedSubjectRef.current) { setSelectedSubject(null); return; }
       if (showExamSelectRef.current) { setShowExamSelect(false); return; }
