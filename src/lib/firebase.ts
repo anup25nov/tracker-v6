@@ -12,9 +12,17 @@ import {
 } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { Capacitor } from "@capacitor/core";
-import { getFirebaseConfig, ENV_LABEL } from "@/lib/env";
 
-const firebaseConfig = getFirebaseConfig();
+// Firebase config 
+const firebaseConfig = {
+  apiKey: "AIzaSyCgUKFHIk5E8O4pi2sm52WV93rubooY6ws",
+  authDomain: "syllabus-tracker-bb443.firebaseapp.com",
+  projectId: "syllabus-tracker-bb443",
+  storageBucket: "syllabus-tracker-bb443.firebasestorage.app",
+  messagingSenderId: "56419108715",
+  appId: "1:56419108715:web:bb3ecc264cf58f79e2ae2e",
+  measurementId: "G-RN89GFFB0G",
+};
 
 let analytics: Analytics | null = null;
 
@@ -25,13 +33,11 @@ const googleProvider = new GoogleAuthProvider();
 
 export const initFirebase = () => {
   try {
-    console.log(`[Firebase] Environment: ${ENV_LABEL} | Project: ${firebaseConfig.projectId}`);
     if (!firebaseConfig.apiKey) {
       console.warn("Firebase: No API key configured. Analytics disabled.");
       return;
     }
     analytics = getAnalytics(app);
-    console.log("Firebase Analytics initialized");
   } catch (error) {
     console.error("Firebase initialization error:", error);
   }

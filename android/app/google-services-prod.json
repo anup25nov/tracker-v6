@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "56419108715",
+    "project_id": "syllabus-tracker-bb443",
+    "storage_bucket": "syllabus-tracker-bb443.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56419108715:android:4ce36336f504670ce2ae2e",
+        "android_client_info": {
+          "package_name": "com.sscexamsathi.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "56419108715-7h6rs0ao01hho7nq76pej6qsmtj4ct98.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sscexamsathi.app",
+            "certificate_hash": "c3d8f8b4aa7916c85fcf55b6ae9710a59b207f68"
+          }
+        },
+        {
+          "client_id": "56419108715-nqku658jgu9t0bfps91uetl3futii6kt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sscexamsathi.app",
+            "certificate_hash": "e398ba496bc710c4af56927433995c5d3514afa3"
+          }
+        },
+        {
+          "client_id": "56419108715-rbva511v1dthshi4p780ujcge3bog3n9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sscexamsathi.app",
+            "certificate_hash": "a9e758d7cd1004c061b243b86ac0e118f68f78da"
+          }
+        },
+        {
+          "client_id": "56419108715-09po4chte0is3c5cjruut1s3vflgvcua.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDylucXOY3LUEQl1vm9Cyh5X7P7FL1p_g4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "56419108715-09po4chte0is3c5cjruut1s3vflgvcua.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
