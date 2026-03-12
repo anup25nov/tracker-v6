@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Check, Trophy, ChevronDown, ChevronRight } from "lucide-react";
 import { useAppStore } from "@/store/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getSubjectColor } from "@/lib/subjectColors";
 import { logScreenView, logTopicToggled } from "@/lib/firebase";
-import { useEffect } from "react";
+import { isProfileBoosterQuizEnabled } from "@/lib/featureFlags";
+import { getAvailableQuizTopics } from "@/lib/boosterQuiz";
+import BoosterQuizPopup from "@/components/BoosterQuizPopup";
+import { toast } from "sonner";
 import type { Topic } from "@/data/syllabus";
 
 interface TopicsScreenProps {
   subjectId: string;
   onBack: () => void;
+  onStartQuiz?: (topicId: string, topicName: string, topicNameHi: string) => void;
 }
 
 function isTopicDone(topic: Topic): boolean {
@@ -20,7 +24,7 @@ function isTopicDone(topic: Topic): boolean {
   return topic.completed;
 }
 
-const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
+const TopicsScreen = ({ subjectId, onBack, onStartQuiz }: TopicsScreenProps) => {
   const { t, language } = useTranslation();
   const syllabus = useAppStore((s) => s.syllabus);
   const toggleTopic = useAppStore((s) => s.toggleTopic);
@@ -29,10 +33,26 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
 
   const subject = syllabus.find((s) => s.id === subjectId);
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
+  const [quizPopup, setQuizPopup] = useState<{ topicId: string; topicName: string; topicNameHi: string } | null>(null);
+  const [availableQuizTopics, setAvailableQuizTopics] = useState<string[]>([]);
+  const [completedTopicsBefore, setCompletedTopicsBefore] = useState<Set<string>>(new Set());
+  const featureEnabled = isProfileBoosterQuizEnabled();
 
   useEffect(() => {
     logScreenView(`topics_${subjectId}`);
   }, [subjectId]);
+
+  // Track which topics are already complete on mount
+  useEffect(() => {
+    if (subject && featureEnabled) {
+      const completed = new Set<string>();
+      for (const topic of subject.topics) {
+        if (isTopicDone(topic)) completed.add(topic.id);
+      }
+      setCompletedTopicsBefore(completed);
+      getAvailableQuizTopics().then(setAvailableQuizTopics);
+    }
+  }, [subjectId, featureEnabled]);
 
   if (!subject) return null;
 
@@ -56,6 +76,27 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
     const subtopic = topic?.subtopics?.find((st) => st.id === subtopicId);
     toggleTopic(subjectId, topicId, subtopicId);
     logTopicToggled(subjectId, subtopicId, !subtopic?.completed);
+
+    // Check if this toggle completes the topic (feature flag check)
+    if (featureEnabled && topic?.subtopics) {
+      // After toggle, check if all subtopics are now complete
+      const wasComplete = completedTopicsBefore.has(topicId);
+      if (!wasComplete) {
+        // Count: the toggled subtopic will flip, so check new state
+        const willBeComplete = topic.subtopics.every((st) =>
+          st.id === subtopicId ? !st.completed : st.completed
+        );
+        if (willBeComplete && availableQuizTopics.includes(topicId)) {
+          setTimeout(() => {
+            setQuizPopup({
+              topicId,
+              topicName: topic.name,
+              topicNameHi: topic.nameHi,
+            });
+          }, 600);
+        }
+      }
+    }
   };
 
   return (
@@ -105,18 +146,12 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
           />
         </div>
 
-        {/* Milestones at 25%, 50%, 75%, 100% of bar width */}
+        {/* Milestones */}
         <div className="relative w-full mt-1.5 h-5">
           {[25, 50, 75, 100].map((m) => (
-            <div
-              key={m}
-              className="absolute flex flex-col items-center -translate-x-1/2"
-              style={{ left: `${m}%` }}
-            >
+            <div key={m} className="absolute flex flex-col items-center -translate-x-1/2" style={{ left: `${m}%` }}>
               <div
-                className={`w-1.5 h-1.5 rounded-full transition-all shrink-0 ${
-                  progress >= m ? "scale-125" : "opacity-30"
-                }`}
+                className={`w-1.5 h-1.5 rounded-full transition-all shrink-0 ${progress >= m ? "scale-125" : "opacity-30"}`}
                 style={{ background: progress >= m ? `hsl(${color})` : `hsl(var(--muted-foreground))` }}
               />
               <span className="text-[9px] text-muted-foreground mt-0.5 whitespace-nowrap">{m}%</span>
@@ -146,9 +181,7 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
           const hasSubtopics = topic.subtopics && topic.subtopics.length > 0;
           const isExpanded = expandedTopicId === topic.id;
           const done = isTopicDone(topic);
-          const subtopicCompleted = hasSubtopics
-            ? topic.subtopics!.filter((st) => st.completed).length
-            : 0;
+          const subtopicCompleted = hasSubtopics ? topic.subtopics!.filter((st) => st.completed).length : 0;
           const subtopicTotal = hasSubtopics ? topic.subtopics!.length : 0;
 
           return (
@@ -161,7 +194,7 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
                 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: index * 0.025 }}
+                transition={{ duration: 0.25, delay: 0.2 + index * 0.025 }}
                 onClick={() => handleToggleTopic(topic.id)}
               >
                 <div
@@ -172,11 +205,7 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
                   }}
                 >
                   {done && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                    >
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 20 }}>
                       <Check size={12} className="text-white" />
                     </motion.div>
                   )}
@@ -187,18 +216,13 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
                     {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                   </span>
                 ) : (
-                  <span
-                    className="text-[10px] sm:text-xs font-bold w-5 sm:w-6 shrink-0"
-                    style={{ color: done ? `hsl(${color})` : `hsl(var(--muted-foreground))` }}
-                  >
+                  <span className="text-[10px] sm:text-xs font-bold w-5 sm:w-6 shrink-0" style={{ color: done ? `hsl(${color})` : `hsl(var(--muted-foreground))` }}>
                     {index + 1}
                   </span>
                 )}
 
                 <span
-                  className={`text-xs sm:text-sm font-medium flex-1 text-left leading-snug ${
-                    done ? "line-through opacity-70" : ""
-                  }`}
+                  className={`text-xs sm:text-sm font-medium flex-1 text-left leading-snug ${done ? "line-through opacity-70" : ""}`}
                   style={{ color: done ? `hsl(${color})` : `hsl(var(--foreground))` }}
                 >
                   {language === "hi" ? topic.nameHi : topic.name}
@@ -210,12 +234,7 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
                 </span>
 
                 {done && !hasSubtopics && (
-                  <motion.div
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ background: `hsl(${color})` }}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                  />
+                  <motion.div className="w-2 h-2 rounded-full shrink-0" style={{ background: `hsl(${color})` }} initial={{ scale: 0 }} animate={{ scale: 1 }} />
                 )}
               </motion.button>
 
@@ -249,9 +268,7 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
                             {st.completed && <Check size={10} className="text-white" />}
                           </div>
                           <span
-                            className={`text-[11px] sm:text-xs font-medium flex-1 ${
-                              st.completed ? "line-through opacity-70" : ""
-                            }`}
+                            className={`text-[11px] sm:text-xs font-medium flex-1 ${st.completed ? "line-through opacity-70" : ""}`}
                             style={{ color: st.completed ? `hsl(${color})` : `hsl(var(--foreground))` }}
                           >
                             {language === "hi" ? st.nameHi : st.name}
@@ -266,6 +283,31 @@ const TopicsScreen = ({ subjectId, onBack }: TopicsScreenProps) => {
           );
         })}
       </div>
+
+      {/* Booster Quiz Popup */}
+      <AnimatePresence>
+        {quizPopup && (
+          <BoosterQuizPopup
+            topicName={quizPopup.topicName}
+            topicNameHi={quizPopup.topicNameHi}
+            language={language}
+            onStartQuiz={() => {
+              setQuizPopup(null);
+              onStartQuiz?.(quizPopup.topicId, quizPopup.topicName, quizPopup.topicNameHi);
+            }}
+            onTakeLater={() => {
+              setQuizPopup(null);
+              toast(
+                language === "hi"
+                  ? "आप बाद में प्रोफ़ाइल से क्विज़ ले सकते हैं"
+                  : "You can take the quiz later from your Profile",
+                { duration: 3000 }
+              );
+            }}
+            onClose={() => setQuizPopup(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
