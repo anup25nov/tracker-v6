@@ -102,13 +102,8 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile }
   const setLanguage = useAppStore((s) => s.setLanguage);
   const resetProgress = useAppStore((s) => s.resetProgress);
   const [showReset, setShowReset] = useState(false);
-  const [showLogout, setShowLogout] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [userProfile, setUserProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem("theme");
-    return saved !== "light";
-  });
 
   const exam = allExams.find((e) => e.id === selectedExamId);
   const overall = getOverallProgress();
