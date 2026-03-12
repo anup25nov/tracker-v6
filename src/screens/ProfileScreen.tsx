@@ -231,6 +231,52 @@ const ProfileScreen = ({ onBack }: ProfileScreenProps) => {
 
       {/* Booster Quiz Results Section - placeholder for Phase 2 */}
       {/* This will show quiz results when enable_profile_booster_quiz_feature flag is true */}
+
+      {/* Logout */}
+      {user && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          {!showLogout ? (
+            <button
+              className="w-full rounded-2xl bg-destructive/5 border border-destructive/20 p-3.5 sm:p-4 flex items-center gap-3 active:bg-destructive/10 transition-colors"
+              onClick={() => setShowLogout(true)}
+            >
+              <LogOut size={18} className="text-destructive" />
+              <span className="text-xs sm:text-sm font-medium text-destructive">
+                {language === "hi" ? "लॉग आउट" : "Logout"}
+              </span>
+            </button>
+          ) : (
+            <div className="rounded-2xl bg-card border border-destructive/30 p-4 space-y-3">
+              <p className="text-xs sm:text-sm text-foreground">
+                {language === "hi" ? "क्या आप लॉग आउट करना चाहते हैं?" : "Are you sure you want to logout?"}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 bg-secondary rounded-xl p-3 text-xs sm:text-sm font-medium text-foreground active:scale-95 transition-transform"
+                  onClick={() => setShowLogout(false)}
+                >
+                  {language === "hi" ? "रद्द करें" : "Cancel"}
+                </button>
+                <button
+                  className="flex-1 bg-destructive rounded-xl p-3 text-xs sm:text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
+                  onClick={() => {
+                    firebaseSignOut();
+                    localStorage.removeItem("skipped-login");
+                    setShowLogout(false);
+                    onBack();
+                  }}
+                >
+                  {language === "hi" ? "लॉग आउट" : "Logout"}
+                </button>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      )}
     </div>
   );
 };
