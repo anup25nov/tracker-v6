@@ -7,15 +7,16 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
-import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Sun, Moon, ChevronDown, LogOut, Copy, Share2 } from "lucide-react";
+import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, ChevronDown, Copy, Share2 } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
-import { logScreenView, logExamSelected, firebaseSignOut, getCurrentUserProfile } from "@/lib/firebase";
+import { logScreenView, logExamSelected, getCurrentUserProfile } from "@/lib/firebase";
 import { useEffect } from "react";
 
 interface MainScreenProps {
   onSelectSubject: (subjectId: string) => void;
   onChangeExam: () => void;
   onOpenChat: () => void;
+  onOpenProfile: () => void;
 }
 
 const TelegramIcon = () => (
@@ -90,7 +91,7 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenProps) => {
+const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile }: MainScreenProps) => {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const syllabus = useAppStore((s) => s.syllabus);
@@ -101,13 +102,8 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
   const setLanguage = useAppStore((s) => s.setLanguage);
   const resetProgress = useAppStore((s) => s.resetProgress);
   const [showReset, setShowReset] = useState(false);
-  const [showLogout, setShowLogout] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [userProfile, setUserProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem("theme");
-    return saved !== "light";
-  });
 
   const exam = allExams.find((e) => e.id === selectedExamId);
   const overall = getOverallProgress();
@@ -126,17 +122,6 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
     getCurrentUserProfile().then(setUserProfile);
   }, [user?.uid]);
 
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    if (next) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  };
 
   const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.sscexamsathi.app";
   const SHARE_TITLE = "SSC Exam Sathi – Track Every Topic, Clear Every Exam";
@@ -234,10 +219,16 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
         </button>
 
         <button
-          onClick={toggleTheme}
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-secondary active:scale-90 transition-transform"
+          onClick={onOpenProfile}
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center overflow-hidden active:scale-90 transition-transform border border-border bg-secondary"
         >
-          {isDark ? <Sun size={18} className="text-warning" /> : <Moon size={18} className="text-muted-foreground" />}
+          {user?.photoURL ? (
+            <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover rounded-xl" referrerPolicy="no-referrer" />
+          ) : (
+            <span className="text-sm font-bold text-primary">
+              {(userProfile?.displayName || user?.displayName || "U").charAt(0).toUpperCase()}
+            </span>
+          )}
         </button>
       </motion.div>
 
@@ -570,45 +561,6 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
         </div>
       )}
 
-      {/* Logout */}
-      {user && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
-          {!showLogout ? (
-            <button
-              className="w-full rounded-2xl bg-card border border-border p-3.5 sm:p-4 flex items-center gap-3 active:bg-secondary/50 transition-colors"
-              onClick={() => setShowLogout(true)}
-            >
-              <LogOut size={18} className="text-muted-foreground" />
-              <span className="text-xs sm:text-sm font-medium text-foreground">{t("logout")}</span>
-              <span className="ml-auto text-[10px] text-muted-foreground truncate max-w-[140px]">
-                {userProfile?.displayName || userProfile?.email || user.email || ""}
-              </span>
-            </button>
-          ) : (
-            <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
-              <p className="text-xs sm:text-sm text-foreground">{t("logoutConfirm")}</p>
-              <div className="flex gap-3">
-                <button
-                  className="flex-1 bg-secondary rounded-xl p-3 text-xs sm:text-sm font-medium text-foreground active:scale-95 transition-transform"
-                  onClick={() => setShowLogout(false)}
-                >
-                  {t("cancel")}
-                </button>
-                <button
-                  className="flex-1 bg-destructive rounded-xl p-3 text-xs sm:text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
-                  onClick={() => {
-                    firebaseSignOut();
-                    localStorage.removeItem("skipped-login");
-                    setShowLogout(false);
-                  }}
-                >
-                  {t("logout")}
-                </button>
-              </div>
-            </div>
-          )}
-        </motion.div>
-      )}
     </div>
   );
 };

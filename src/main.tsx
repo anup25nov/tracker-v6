@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { initFirebase } from "./lib/firebase";
+import { initFeatureFlags } from "./lib/featureFlags";
 import { setupGlobalErrorLogging } from "./lib/firestoreErrorLog";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -14,6 +15,7 @@ if (savedTheme === "light") {
 }
 
 initFirebase();
+initFeatureFlags();
 setupGlobalErrorLogging();
 
 createRoot(document.getElementById("root")!).render(

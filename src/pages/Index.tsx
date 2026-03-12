@@ -13,6 +13,7 @@ const MainScreen = lazy(() => import("@/screens/MainScreen"));
 const TopicsScreen = lazy(() => import("@/screens/TopicsScreen"));
 const ExamSelectScreen = lazy(() => import("@/screens/ExamSelectScreen"));
 const ChatScreen = lazy(() => import("@/screens/ChatScreen"));
+const ProfileScreen = lazy(() => import("@/screens/ProfileScreen"));
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
@@ -30,6 +31,7 @@ const Index = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [showExamSelect, setShowExamSelect] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [skippedLogin, setSkippedLogin] = useState(() => {
     return localStorage.getItem("skippedLogin") === "true";
   });
@@ -37,10 +39,12 @@ const Index = () => {
   const selectedSubjectRef = useRef<string | null>(null);
   const showExamSelectRef = useRef(false);
   const showChatRef = useRef(false);
+  const showProfileRef = useRef(false);
 
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
   useEffect(() => { showExamSelectRef.current = showExamSelect; }, [showExamSelect]);
   useEffect(() => { showChatRef.current = showChat; }, [showChat]);
+  useEffect(() => { showProfileRef.current = showProfile; }, [showProfile]);
 
   // Load Firestore data when user logs in
   useEffect(() => {
@@ -61,6 +65,7 @@ const Index = () => {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const listener = CapacitorApp.addListener("backButton", () => {
+      if (showProfileRef.current) { setShowProfile(false); return; }
       if (showChatRef.current) { setShowChat(false); return; }
       if (selectedSubjectRef.current) { setSelectedSubject(null); return; }
       if (showExamSelectRef.current) { setShowExamSelect(false); return; }
@@ -109,6 +114,14 @@ const Index = () => {
     );
   }
 
+  if (showProfile) {
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <ProfileScreen onBack={() => setShowProfile(false)} />
+      </Suspense>
+    );
+  }
+
   if (showChat) {
     return (
       <Suspense fallback={<LoadingSpinner />}>
@@ -131,6 +144,7 @@ const Index = () => {
         onSelectSubject={(id) => setSelectedSubject(id)}
         onChangeExam={() => setShowExamSelect(true)}
         onOpenChat={() => setShowChat(true)}
+        onOpenProfile={() => setShowProfile(true)}
       />
     );
   };
