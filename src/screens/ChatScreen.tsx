@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, memo, useCallback } from "react";
+import { useState, useRef, useEffect, memo, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -29,44 +29,107 @@ const quickActions = [
   { icon: Zap, label: "Study tips for my exam", labelHi: "मेरी परीक्षा के लिए टिप्स" },
 ];
 
+/**
+ * Extract suggested questions from AI response and return cleaned content + suggestions.
+ * Looks for the pattern: 💡 **You can ask:** followed by numbered questions.
+ */
+function extractSuggestions(content: string): { cleanContent: string; suggestions: string[] } {
+  const suggestions: string[] = [];
+  
+  // Match the suggestions block at the end
+  const suggestionsRegex = /💡\s*\*{0,2}You can ask:?\*{0,2}[\s\S]*?(?:\n\s*\d+\.\s*.+)+/gi;
+  const suggestionsRegexHi = /💡\s*\*{0,2}आप पूछ सकते हैं:?\*{0,2}[\s\S]*?(?:\n\s*\d+\.\s*.+)+/gi;
+  
+  let cleanContent = content;
+  
+  const match = content.match(suggestionsRegex) || content.match(suggestionsRegexHi);
+  if (match) {
+    const block = match[match.length - 1]; // Take last match
+    cleanContent = content.replace(block, "").trim();
+    
+    // Extract individual questions
+    const questionRegex = /\d+\.\s*(.+)/g;
+    let qMatch;
+    while ((qMatch = questionRegex.exec(block)) !== null) {
+      const q = qMatch[1].trim().replace(/^\*+|\*+$/g, "").replace(/^[""]|[""]$/g, "").trim();
+      if (q.length > 5) suggestions.push(q);
+    }
+  }
+  
+  return { cleanContent, suggestions };
+}
+
 // Memoized message bubble
-const MessageBubble = memo(({ message }: { message: ChatMessage }) => {
+const MessageBubble = memo(({ message, isLast, onSuggestionClick }: { 
+  message: ChatMessage; 
+  isLast: boolean;
+  onSuggestionClick: (text: string) => void;
+}) => {
   const isUser = message.role === "user";
+  const { cleanContent, suggestions } = useMemo(
+    () => isUser ? { cleanContent: message.content, suggestions: [] } : extractSuggestions(message.content),
+    [message.content, isUser]
+  );
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.2 }}
-      className={`flex ${isUser ? "justify-end" : "justify-start"}`}
-    >
-      {!isUser && (
-        <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center mr-2 mt-1 shrink-0">
-          <Sparkles size={14} className="text-primary" />
-        </div>
-      )}
-      <div
-        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-          isUser
-            ? "bg-primary text-primary-foreground rounded-br-md"
-            : "bg-card border border-border rounded-bl-md"
-        }`}
+    <div className="space-y-2">
+      <motion.div
+        initial={{ opacity: 0, y: 8, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.2 }}
+        className={`flex ${isUser ? "justify-end" : "justify-start"}`}
       >
-        {isUser ? (
-          <p>{message.content}</p>
-        ) : message.content ? (
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-foreground">
-            <ReactMarkdown>{message.content}</ReactMarkdown>
-          </div>
-        ) : (
-          <div className="flex gap-1 py-1">
-            <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-            <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-            <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+        {!isUser && (
+          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center mr-2 mt-1 shrink-0">
+            <Sparkles size={14} className="text-primary" />
           </div>
         )}
-      </div>
-    </motion.div>
+        <div
+          className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+            isUser
+              ? "bg-primary text-primary-foreground rounded-br-md"
+              : "bg-card border border-border rounded-bl-md"
+          }`}
+        >
+          {isUser ? (
+            <p>{message.content}</p>
+          ) : cleanContent ? (
+            <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-foreground">
+              <ReactMarkdown>{cleanContent}</ReactMarkdown>
+            </div>
+          ) : (
+            <div className="flex gap-1 py-1">
+              <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
+              <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
+              <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Suggested questions as clickable chips - only on last assistant message */}
+      {!isUser && isLast && suggestions.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-col gap-1.5 ml-9"
+        >
+          {suggestions.map((q, i) => (
+            <motion.button
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 + i * 0.1 }}
+              onClick={() => onSuggestionClick(q)}
+              className="text-left text-xs px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-foreground hover:bg-primary/20 active:scale-[0.98] transition-all max-w-[85%]"
+            >
+              <span className="text-primary mr-1">💡</span> {q}
+            </motion.button>
+          ))}
+        </motion.div>
+      )}
+    </div>
   );
 });
 MessageBubble.displayName = "MessageBubble";
@@ -133,6 +196,14 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
     setInput("");
     sendMessage(trimmed, buildContext());
   }, [input, isStreaming, sendMessage, buildContext]);
+
+  const handleSuggestionClick = useCallback(
+    (text: string) => {
+      if (isStreaming) return;
+      sendMessage(text, buildContext());
+    },
+    [isStreaming, sendMessage, buildContext]
+  );
 
   const handleQuickAction = useCallback(
     (action: (typeof quickActions)[0]) => {
@@ -225,8 +296,13 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
           </motion.div>
         ) : (
           <AnimatePresence>
-            {messages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+            {messages.map((msg, idx) => (
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                isLast={idx === messages.length - 1 && !isStreaming}
+                onSuggestionClick={handleSuggestionClick}
+              />
             ))}
           </AnimatePresence>
         )}

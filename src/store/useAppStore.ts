@@ -29,7 +29,7 @@ interface AppState {
   getWeakestSubject: () => Subject | null;
   getStrongestSubject: () => Subject | null;
   getFirstIncompleteSubject: () => Subject | null;
-  loadFromFirestore: (email: string) => Promise<void>;
+  loadFromFirestore: (uid: string) => Promise<void>;
   syncToFirestore: () => void;
 }
 
@@ -59,10 +59,10 @@ export const useAppStore = create<AppState>()(
           lastAchievement: null,
         });
 
-        // Auto-load from Firestore if user is logged in
-        const email = auth.currentUser?.email;
-        if (email) {
-          loadProgressFromFirestore(email, examId, freshSyllabus).then((saved) => {
+        // Auto-load from Firestore if user is logged in (one doc per user per exam)
+        const uid = auth.currentUser?.uid;
+        if (uid) {
+          loadProgressFromFirestore(uid, examId, freshSyllabus).then((saved) => {
             if (saved) {
               set({ syllabus: saved.syllabus, achievedMilestones: saved.achievedMilestones });
             }
@@ -125,11 +125,11 @@ export const useAppStore = create<AppState>()(
 
         set({ syllabus: newSyllabus, achievedMilestones: newMilestones, lastAchievement: newAchievement });
 
-        // Sync to Firestore after every toggle
-        const email = auth.currentUser?.email;
+        // Sync to Firestore after every toggle (one doc per user per exam)
+        const uid = auth.currentUser?.uid;
         const examId = get().selectedExamId;
-        if (email && examId) {
-          saveProgressToFirestore(email, examId, newSyllabus, newMilestones);
+        if (uid && examId) {
+          saveProgressToFirestore(uid, examId, newSyllabus, newMilestones);
         }
       },
 
@@ -146,10 +146,10 @@ export const useAppStore = create<AppState>()(
           achievedMilestones: {},
           lastAchievement: null,
         });
-        // Sync reset to Firestore
-        const email = auth.currentUser?.email;
-        if (email) {
-          saveProgressToFirestore(email, state.selectedExamId, freshSyllabus, {});
+        // Sync reset to Firestore (only this exam's doc is updated)
+        const uid = auth.currentUser?.uid;
+        if (uid) {
+          saveProgressToFirestore(uid, state.selectedExamId, freshSyllabus, {});
         }
       },
 
@@ -269,10 +269,10 @@ export const useAppStore = create<AppState>()(
         ) || null;
       },
 
-      loadFromFirestore: async (email: string) => {
+      loadFromFirestore: async (uid: string) => {
         const state = get();
         if (!state.selectedExamId || state.syllabus.length === 0) return;
-        const saved = await loadProgressFromFirestore(email, state.selectedExamId, state.syllabus);
+        const saved = await loadProgressFromFirestore(uid, state.selectedExamId, state.syllabus);
         if (saved) {
           set({ syllabus: saved.syllabus, achievedMilestones: saved.achievedMilestones });
         }
@@ -280,9 +280,9 @@ export const useAppStore = create<AppState>()(
 
       syncToFirestore: () => {
         const state = get();
-        const email = auth.currentUser?.email;
-        if (email && state.selectedExamId) {
-          saveProgressToFirestore(email, state.selectedExamId, state.syllabus, state.achievedMilestones);
+        const uid = auth.currentUser?.uid;
+        if (uid && state.selectedExamId) {
+          saveProgressToFirestore(uid, state.selectedExamId, state.syllabus, state.achievedMilestones);
         }
       },
     }),

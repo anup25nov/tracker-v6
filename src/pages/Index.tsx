@@ -2,16 +2,16 @@ import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import AchievementPopup from "@/components/AchievementPopup";
 import { useAppStore } from "@/store/useAppStore";
-import { useAuth } from "@/hooks/useAuth";
 import { logScreenView, logExamSelected } from "@/lib/firebase";
+import { useAuth } from "@/hooks/useAuth";
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
 
-// Lazy-loaded screens for performance
+// Lazy-loaded screens
+const LoginScreen = lazy(() => import("@/screens/LoginScreen"));
 const MainScreen = lazy(() => import("@/screens/MainScreen"));
 const TopicsScreen = lazy(() => import("@/screens/TopicsScreen"));
 const ExamSelectScreen = lazy(() => import("@/screens/ExamSelectScreen"));
-const LoginScreen = lazy(() => import("@/screens/LoginScreen"));
 const ChatScreen = lazy(() => import("@/screens/ChatScreen"));
 
 const LoadingSpinner = () => (
@@ -30,6 +30,9 @@ const Index = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [showExamSelect, setShowExamSelect] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [skippedLogin, setSkippedLogin] = useState(() => {
+    return localStorage.getItem("skippedLogin") === "true";
+  });
 
   const selectedSubjectRef = useRef<string | null>(null);
   const showExamSelectRef = useRef(false);
@@ -38,6 +41,16 @@ const Index = () => {
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
   useEffect(() => { showExamSelectRef.current = showExamSelect; }, [showExamSelect]);
   useEffect(() => { showChatRef.current = showChat; }, [showChat]);
+
+  // Load Firestore data when user logs in
+  useEffect(() => {
+    if (user?.uid) {
+      const store = useAppStore.getState();
+      if (store.selectedExamId && store.syllabus.length > 0) {
+        store.loadFromFirestore(user.uid);
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     if (showExamSelect || !selectedExamId) {
@@ -56,14 +69,28 @@ const Index = () => {
     return () => { listener.then((handle) => handle.remove()); };
   }, []);
 
-  const [skippedLogin, setSkippedLogin] = useState(false);
+  // Show loading while auth initializes
+  if (authLoading) {
+    return <LoadingSpinner />;
+  }
 
-  if (authLoading) return <LoadingSpinner />;
-
+  // Show login if not authenticated and hasn't skipped
   if (!user && !skippedLogin) {
     return (
       <Suspense fallback={<LoadingSpinner />}>
-        <LoginScreen onLoginSuccess={() => setSkippedLogin(true)} />
+        <LoginScreen
+          onLoginSuccess={() => {
+            // If user is still null after this (skipped), mark as skipped
+            setTimeout(() => {
+              if (!useAuth) {
+                localStorage.setItem("skippedLogin", "true");
+                setSkippedLogin(true);
+              }
+            }, 100);
+            localStorage.setItem("skippedLogin", "true");
+            setSkippedLogin(true);
+          }}
+        />
       </Suspense>
     );
   }

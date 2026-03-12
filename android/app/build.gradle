@@ -3,7 +3,31 @@ apply plugin: 'com.android.application'
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+    // Trim all values (fixes CRLF / trailing spaces that cause "password was incorrect")
+    keystoreProperties.each { k, v -> if (v instanceof String) keystoreProperties.setProperty(k, v.trim()) }
+}
+// Allow env vars to override (avoids .properties encoding/special-char issues)
+def envStorePassword = System.getenv("KEYSTORE_PASSWORD")
+def envKeyPassword = System.getenv("KEY_PASSWORD")
+if (envStorePassword != null) keystoreProperties.setProperty("storePassword", envStorePassword)
+if (envKeyPassword != null) keystoreProperties.setProperty("keyPassword", envKeyPassword)
+
+// Fail release builds if not configured for signing (Play Store requires signed bundles)
+tasks.whenTaskAdded { task ->
+    if (task.name == "bundleRelease" && !keystorePropertiesFile.exists()) {
+        task.doFirst {
+            throw new GradleException(
+                "Release signing not configured.\n\n" +
+                "1. Create a keystore (one-time):\n" +
+                "   cd android && keytool -genkey -v -keystore sscexamsathi-upload.keystore -alias sscexamsathi -keyalg RSA -keysize 2048 -validity 10000\n\n" +
+                "2. Copy and edit:\n" +
+                "   cp keystore.properties.example keystore.properties\n" +
+                "   Then set storePassword and keyPassword in android/keystore.properties\n\n" +
+                "See PLAY_STORE.md for full steps."
+            )
+        }
+    }
 }
 
 android {
@@ -13,8 +37,8 @@ android {
         applicationId "com.sscexamsathi.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 6
+        versionName "1.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

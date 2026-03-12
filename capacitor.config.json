@@ -1,5 +1,16 @@
 {
   "appId": "com.sscexamsathi.app",
   "appName": "SSC Exam Sathi",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "FirebaseAuthentication": {
+      "providers": ["google.com"],
+      "skipNativeAuth": false
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#0f172a"
+    }
+  }
 }

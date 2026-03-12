@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { User } from "firebase/auth";
-import { onAuthChange, handleRedirectResult } from "@/lib/firebase";
+import { auth, handleRedirectResult } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -8,26 +9,22 @@ export const useAuth = () => {
 
   useEffect(() => {
     let cancelled = false;
-    let unsubscribe: (() => void) | null = null;
 
-    const init = async () => {
-      // Process redirect result first (required after Google redirect sign-in)
-      try {
-        await handleRedirectResult();
-      } catch (e) {
-        console.error("Redirect result error:", e);
-      }
+    // 1. Set up auth state listener FIRST (recommended by Firebase)
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (cancelled) return;
-      unsubscribe = onAuthChange((firebaseUser) => {
-        setUser(firebaseUser);
-        setLoading(false);
-      });
-    };
+      setUser(firebaseUser);
+      setLoading(false);
+    });
 
-    init();
+    // 2. Process any pending redirect result (web only, no-op on native)
+    handleRedirectResult().catch((e) => {
+      console.error("Redirect result error:", e);
+    });
+
     return () => {
       cancelled = true;
-      if (unsubscribe) unsubscribe();
+      unsubscribe();
     };
   }, []);
 

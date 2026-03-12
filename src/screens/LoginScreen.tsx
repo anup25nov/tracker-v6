@@ -2,8 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { signInWithGoogle } from "@/lib/firebase";
 import { useTranslation } from "@/hooks/useTranslation";
-import SSCLogo from "@/components/SSCLogo";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" width="20" height="20">
@@ -31,16 +30,23 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
       if (firebaseUser) {
         console.log("Login successful:", firebaseUser.email, firebaseUser.displayName);
       }
-      // onLoginSuccess is called as fallback; useAuth will also detect the user via onAuthStateChanged
-      onLoginSuccess();
     } catch (err: any) {
       console.error("Login error:", err?.code, err?.message);
+      // All errors are already logged to Firestore by signInWithGoogle
       if (err.code === "auth/popup-closed-by-user") {
-        setError(null); // User cancelled, no error
+        setError(null);
       } else if (err.code === "auth/unauthorized-domain") {
-        setError(language === "hi" 
-          ? "यह डोमेन अधिकृत नहीं है। Firebase Console में डोमेन जोड़ें।" 
-          : "This domain is not authorized. Add it in Firebase Console → Auth → Authorized domains.");
+        setError(
+          language === "hi"
+            ? "यह डोमेन अधिकृत नहीं है। Firebase Console में डोमेन जोड़ें।"
+            : "This domain is not authorized. Add it in Firebase Console → Auth → Authorized domains."
+        );
+      } else if (err.code === "auth/no-credentials" || err.message?.includes("No credentials")) {
+        setError(
+          language === "hi"
+            ? "Google Sign-In विफल रहा। कृपया पुनः प्रयास करें।"
+            : "Google Sign-In failed. Please clear app cache and try again."
+        );
       } else {
         setError(`${t("loginError")} (${err.code || err.message || "unknown"})`);
       }
@@ -76,42 +82,22 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg"
-            style={{
-              background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))",
-            }}
-          >
-            <SSCLogo size={44} />
-          </div>
+          <img
+            src="/app_logo.png"
+            alt="SSC Exam Sathi"
+            className="w-24 h-24 rounded-2xl shadow-lg object-contain"
+          />
           <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
             SSC Exam Sathi
           </h1>
-          <p className="text-sm text-muted-foreground text-center">
-            {t("loginSubtitle")}
-          </p>
-        </motion.div>
-
-        {/* Features highlights */}
-        <motion.div
-          className="w-full space-y-2.5"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.4 }}
-        >
-          {[
-            { emoji: "📊", text: t("loginFeature1") },
-            { emoji: "🎯", text: t("loginFeature2") },
-            { emoji: "🏆", text: t("loginFeature3") },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-card border border-border"
-            >
-              <span className="text-lg">{item.emoji}</span>
-              <span className="text-xs sm:text-sm text-foreground font-medium">{item.text}</span>
-            </div>
-          ))}
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Sparkles size={14} className="text-primary" />
+            <span>
+              {language === "hi"
+                ? "AI से अपनी तैयारी को बूस्ट करें"
+                : "Boost your preparation using AI"}
+            </span>
+          </div>
         </motion.div>
 
         {/* Login Button */}
@@ -119,7 +105,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
           className="w-full space-y-3"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.4 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
         >
           <button
             onClick={handleGoogleLogin}
@@ -145,24 +131,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
               {error}
             </motion.p>
           )}
-
-          <button
-            onClick={onLoginSuccess}
-            className="w-full text-center text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors"
-          >
-            {language === "hi" ? "अभी के लिए छोड़ें" : "Skip for now"}
-          </button>
         </motion.div>
-
-        {/* Terms note */}
-        <motion.p
-          className="text-[10px] text-muted-foreground text-center px-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.55 }}
-        >
-          {t("loginTerms") || "By signing in, you agree to our Terms of Service and Privacy Policy."}
-        </motion.p>
       </motion.div>
     </div>
   );

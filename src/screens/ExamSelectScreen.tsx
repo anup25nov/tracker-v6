@@ -6,6 +6,7 @@ import { Lock } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
 
 const EXAM_IDS_ON_SELECT = ["ssc-cgl", "railway", "bank"] as const;
+const AVAILABLE_EXAM_IDS = ["ssc-cgl"];
 
 interface ExamSelectScreenProps {
   onExamSelected?: () => void;
@@ -17,7 +18,7 @@ const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
   const examsToShow = allExams.filter((e) => EXAM_IDS_ON_SELECT.includes(e.id as (typeof EXAM_IDS_ON_SELECT)[number]));
 
   const handleSelect = (examId: string) => {
-    if (examId !== "ssc-cgl") return; // Only SSC CGL is available; Railway & Bank coming soon
+    if (!AVAILABLE_EXAM_IDS.includes(examId)) return; // Bank coming soon
     selectExam(examId);
     onExamSelected?.();
   };
@@ -37,7 +38,7 @@ const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
 
       <div className="w-full max-w-md space-y-4">
         {examsToShow.map((exam, index) => {
-          const isAvailable = exam.id === "ssc-cgl";
+          const isAvailable = AVAILABLE_EXAM_IDS.includes(exam.id);
           const totalTopics = countExamUnits(exam);
           return (
             <motion.button
@@ -57,7 +58,7 @@ const ExamSelectScreen = ({ onExamSelected }: ExamSelectScreenProps) => {
                   className="w-14 h-14 flex items-center justify-center rounded-2xl overflow-hidden shrink-0"
                   style={{ background: `hsl(${exam.color} / 0.15)` }}
                 >
-                  {exam.id === "ssc-cgl" ? <SSCLogo size={40} /> : <span className="text-3xl">{exam.icon}</span>}
+                  {exam.id === "ssc-cgl" ? <SSCLogo size={40} /> : <span className="text-3xl">{exam.icon} </span>}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

@@ -7,9 +7,9 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
-import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Sun, Moon, ChevronDown, LogOut } from "lucide-react";
+import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, Sun, Moon, ChevronDown, LogOut, Copy, Share2 } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
-import { logScreenView, logExamSelected, firebaseSignOut } from "@/lib/firebase";
+import { logScreenView, logExamSelected, firebaseSignOut, getCurrentUserProfile } from "@/lib/firebase";
 import { useEffect } from "react";
 
 interface MainScreenProps {
@@ -19,35 +19,39 @@ interface MainScreenProps {
 }
 
 const TelegramIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-    <circle cx="12" cy="12" r="12" fill="#2AABEE" />
-    <path d="M5.43 11.87c2.94-1.28 4.9-2.12 5.88-2.53 2.8-1.17 3.38-1.37 3.76-1.38.08 0 .27.02.39.12.1.08.13.2.14.28.01.05.03.26.01.4-.18 1.92-.98 6.58-1.38 8.73-.17.91-.5 1.22-.82 1.25-.7.06-1.23-.46-1.9-.91-1.06-.7-1.66-1.13-2.69-1.82-1.18-.79-.42-1.23.26-1.94.18-.18 3.25-2.98 3.31-3.23.01-.03.01-.15-.06-.21s-.16-.04-.23-.02c-.1.02-1.74 1.1-4.9 3.24-.46.32-1.88.82-1.88.82s-1.39-.27-2.07-.49c-.83-.28-1.49-.43-1.43-.9.03-.25.34-.5.93-.76z" fill="white" />
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" className="shrink-0">
+    <rect width="24" height="24" rx="6" fill="#0088CC" />
+    <path
+      d="M5.4 11.9c2.9-1.3 4.8-2.2 5.8-2.6 2.8-1.2 3.4-1.4 3.7-1.4.08 0 .26.02.38.11.1.08.12.18.13.26.01.05.02.24 0 .38-.17 1.8-.95 6.2-1.35 8.2-.16.85-.48 1.14-.8 1.17-.68.06-1.2-.43-1.85-.85-1.03-.66-1.62-1.06-2.64-1.7-1.15-.74-.4-1.15.25-1.82.17-.17 3.2-2.8 3.26-3.04.01-.02.01-.14-.06-.2-.07-.05-.15-.03-.22-.01-.1.02-1.7 1.08-4.8 3.18-.45.31-1.84.8-1.84.8s-1.36-.25-2.02-.46c-.82-.27-1.46-.42-1.4-.84.03-.23.33-.47.9-.72z"
+      fill="white"
+    />
   </svg>
 );
 
 const YouTubeIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" className="shrink-0">
     <rect width="24" height="24" rx="6" fill="#FF0000" />
-    <path d="M17.6 8.4c-.2-.7-.7-1.2-1.4-1.4C15 6.7 12 6.7 12 6.7s-3 0-4.2.3c-.7.2-1.2.7-1.4 1.4C6 9.6 6 12 6 12s0 2.4.4 3.6c.2.7.7 1.2 1.4 1.4 1.2.3 4.2.3 4.2.3s3 0 4.2-.3c.7-.2 1.2-.7 1.4-1.4.4-1.2.4-3.6.4-3.6s0-2.4-.4-3.6z" fill="#FF0000" />
-    <path d="M10.5 14.5l3.5-2.5-3.5-2.5v5z" fill="white" />
+    <path
+      d="M10 8l6 4-6 4V8z"
+      fill="white"
+    />
   </svg>
 );
 
 const InstagramIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" className="shrink-0">
     <defs>
-      <radialGradient id="ig-g1" cx="30%" cy="107%" r="150%">
-        <stop offset="0%" stopColor="#fdf497" />
-        <stop offset="5%" stopColor="#fdf497" />
-        <stop offset="45%" stopColor="#fd5949" />
-        <stop offset="60%" stopColor="#d6249f" />
-        <stop offset="90%" stopColor="#285AEB" />
-      </radialGradient>
+      <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#FED576" />
+        <stop offset="25%" stopColor="#F47133" />
+        <stop offset="50%" stopColor="#BC3081" />
+        <stop offset="75%" stopColor="#4C63D2" />
+      </linearGradient>
     </defs>
-    <rect x="1" y="1" width="22" height="22" rx="6" fill="url(#ig-g1)" />
-    <rect x="3" y="3" width="18" height="18" rx="4.5" stroke="white" strokeWidth="1.5" fill="none" />
-    <circle cx="12" cy="12" r="4" stroke="white" strokeWidth="1.5" fill="none" />
-    <circle cx="17.2" cy="6.8" r="1.1" fill="white" />
+    <rect width="24" height="24" rx="6" fill="url(#instagram-gradient)" />
+    <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="white" strokeWidth="1.8" fill="none" />
+    <circle cx="12" cy="12" r="4.2" stroke="white" strokeWidth="1.8" fill="none" />
+    <circle cx="17.5" cy="6.5" r="1.25" fill="white" />
   </svg>
 );
 
@@ -76,6 +80,16 @@ const ShareIcon = () => (
   </svg>
 );
 
+const WhatsAppIcon = () => (
+  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" className="shrink-0">
+    <rect width="24" height="24" rx="6" fill="#25D366" />
+    <path
+      d="M17.5 14.4c-.3-.15-1.7-.85-2-.95-.3-.1-.5-.15-.7.15-.2.3-.75.95-.9 1.15-.15.2-.3.2-.55.05-.25-.15-1-.4-1.9-1.25-.7-.65-1.2-1.45-1.35-1.7-.15-.25 0-.4.1-.5.1-.1.25-.3.35-.45.1-.15.15-.25.25-.4.1-.15.05-.3 0-.4s-.7-1.7-.95-2.3c-.25-.55-.5-.45-.7-.45h-.6c-.2 0-.5.1-.75.45-.25.35-1 1-1 2.4s1 2.8 1.15 3c.15.2 2.1 3.2 5.1 4.4.7.3 1.25.45 1.7.6.7.2 1.35.2 1.85.1.55-.1 1.7-.7 1.95-1.35.25-.65.25-1.2.15-1.35-.1-.15-.25-.2-.45-.35z"
+      fill="white"
+    />
+  </svg>
+);
+
 const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenProps) => {
   const { t, language } = useTranslation();
   const { user } = useAuth();
@@ -88,7 +102,12 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
   const resetProgress = useAppStore((s) => s.resetProgress);
   const [showReset, setShowReset] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [showShareSheet, setShowShareSheet] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    return saved !== "light";
+  });
 
   const exam = allExams.find((e) => e.id === selectedExamId);
   const overall = getOverallProgress();
@@ -98,6 +117,14 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
   useEffect(() => {
     logScreenView("main_screen");
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setUserProfile(null);
+      return;
+    }
+    getCurrentUserProfile().then(setUserProfile);
+  }, [user?.uid]);
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -111,14 +138,35 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
     }
   };
 
-  const handleShare = () => {
+  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.sscexamsathi.app";
+  const SHARE_TITLE = "SSC Exam Sathi – Track Every Topic, Clear Every Exam";
+  const SHARE_TEXT =
+    "I'm using SSC Exam Sathi to track my syllabus and never miss a topic. Simple, smart & free – perfect for SSC & Railway prep. Try it!";
+  const shareFullMessage = `${SHARE_TEXT} ${PLAY_STORE_URL}`;
+
+  const openShareSheet = () => setShowShareSheet(true);
+  const closeShareSheet = () => setShowShareSheet(false);
+
+  const shareViaWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareFullMessage)}`, "_blank");
+    closeShareSheet();
+  };
+  const shareViaTelegram = () => {
+    window.open(
+      `https://t.me/share/url?url=${encodeURIComponent(PLAY_STORE_URL)}&text=${encodeURIComponent(SHARE_TEXT)}`,
+      "_blank"
+    );
+    closeShareSheet();
+  };
+  const copyShareLink = () => {
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(shareFullMessage);
+    closeShareSheet();
+  };
+  const shareViaOtherApps = () => {
     if (navigator.share) {
-      navigator.share({
-        title: "SSC Exam Sathi",
-        text: `Track your ${exam?.name || "SSC"} syllabus easily with this app!`,
-        url: window.location.href,
-      });
+      navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url: PLAY_STORE_URL });
     }
+    closeShareSheet();
   };
 
   const menuItems = [
@@ -139,7 +187,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
     {
       icon: <ShareIcon />,
       label: t("shareApp"),
-      onClick: handleShare,
+      onClick: openShareSheet,
       accent: "142 71% 45%",
     },
   ];
@@ -220,66 +268,97 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
           {/* AI Chat Button */}
           <motion.button
             onClick={onOpenChat}
-            className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
+            className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shrink-0 overflow-visible"
             style={{
-              background: `linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7))`,
-              boxShadow: `0 4px 15px hsl(var(--primary) / 0.3)`,
+              background: `conic-gradient(from var(--ai-angle, 0deg), hsl(280 80% 55%), hsl(200 90% 55%), hsl(330 85% 55%), hsl(45 95% 55%), hsl(280 80% 55%))`,
+              padding: '2px',
             }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.15, rotate: 5 }}
+            whileTap={{ scale: 0.85 }}
+            animate={{
+              "--ai-angle": ["0deg", "360deg"],
+              boxShadow: [
+                "0 0 15px hsl(280 80% 55% / 0.4), 0 0 30px hsl(200 90% 55% / 0.2)",
+                "0 0 25px hsl(330 85% 55% / 0.5), 0 0 50px hsl(45 95% 55% / 0.3)",
+                "0 0 15px hsl(280 80% 55% / 0.4), 0 0 30px hsl(200 90% 55% / 0.2)",
+              ],
+            } as any}
+            transition={{
+              "--ai-angle": { duration: 3, repeat: Infinity, ease: "linear" },
+              boxShadow: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+            } as any}
           >
-            {/* Sparkle particles */}
-            {[...Array(6)].map((_, i) => (
-              <motion.span
-                key={i}
-                className="absolute w-1 h-1 rounded-full bg-primary-foreground"
-                style={{
-                  top: `${20 + Math.random() * 60}%`,
-                  left: `${20 + Math.random() * 60}%`,
-                }}
-                animate={{
-                  opacity: [0, 1, 0],
-                  scale: [0, 1.2, 0],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  delay: i * 0.25,
-                  ease: "easeInOut",
-                }}
-              />
-            ))}
-            {/* Star sparkle icon */}
-            <motion.svg
-              viewBox="0 0 24 24"
-              width="22"
-              height="22"
-              fill="none"
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              {/* Main 4-point star */}
-              <motion.path
-                d="M12 2L13.5 9.5L20 12L13.5 14.5L12 22L10.5 14.5L4 12L10.5 9.5Z"
-                fill="hsl(var(--primary-foreground))"
-                animate={{ scale: [1, 1.08, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              />
-              {/* Small sparkle top-right */}
-              <motion.circle
-                cx="18" cy="5" r="1.2"
-                fill="hsl(var(--primary-foreground))"
-                animate={{ opacity: [0.4, 1, 0.4], scale: [0.8, 1.3, 0.8] }}
-                transition={{ duration: 1.8, repeat: Infinity, delay: 0.3 }}
-              />
-              {/* Small sparkle bottom-left */}
-              <motion.circle
-                cx="6" cy="19" r="0.9"
-                fill="hsl(var(--primary-foreground))"
-                animate={{ opacity: [0.3, 1, 0.3], scale: [0.7, 1.4, 0.7] }}
-                transition={{ duration: 1.6, repeat: Infinity, delay: 0.6 }}
-              />
-            </motion.svg>
+            {/* Inner dark circle */}
+            <div className="absolute inset-[2px] rounded-[14px] bg-background flex items-center justify-center">
+              {/* Floating particles */}
+              {[...Array(6)].map((_, i) => (
+                <motion.span
+                  key={i}
+                  className="absolute w-1.5 h-1.5 rounded-full"
+                  style={{
+                    background: `hsl(${[280, 200, 330, 45, 160, 280][i]} ${80}% ${60}%)`,
+                    filter: `blur(0.5px)`,
+                  }}
+                  animate={{
+                    opacity: [0, 1, 1, 0],
+                    scale: [0, 1.2, 0.8, 0],
+                    x: [0, Math.cos((i * Math.PI) / 3) * 20, Math.cos((i * Math.PI) / 3 + 1) * 24, 0],
+                    y: [0, Math.sin((i * Math.PI) / 3) * 20, Math.sin((i * Math.PI) / 3 + 1) * 24, 0],
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    delay: i * 0.4,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+              {/* Core AI icon */}
+              <motion.svg
+                viewBox="0 0 24 24"
+                width="26"
+                height="26"
+                fill="none"
+                className="relative z-10"
+              >
+                <motion.path
+                  d="M12 2L13.5 9.5L20 12L13.5 14.5L12 22L10.5 14.5L4 12L10.5 9.5Z"
+                  fill="url(#aiGrad)"
+                  animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
+                  transition={{ rotate: { duration: 6, repeat: Infinity, ease: "linear" }, scale: { duration: 2, repeat: Infinity, ease: "easeInOut" } }}
+                  style={{ transformOrigin: "12px 12px" }}
+                />
+                <motion.path
+                  d="M18 3L18.8 5.2L21 6L18.8 6.8L18 9L17.2 6.8L15 6L17.2 5.2Z"
+                  fill="url(#aiGrad2)"
+                  animate={{ opacity: [0.2, 1, 0.2], scale: [0.5, 1.4, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
+                  style={{ transformOrigin: "18px 6px" }}
+                />
+                <motion.path
+                  d="M6 15L6.6 16.4L8 17L6.6 17.6L6 19L5.4 17.6L4 17L5.4 16.4Z"
+                  fill="url(#aiGrad3)"
+                  animate={{ opacity: [0.1, 1, 0.1], scale: [0.4, 1.5, 0.4] }}
+                  transition={{ duration: 1.8, repeat: Infinity, delay: 0.8 }}
+                  style={{ transformOrigin: "6px 17px" }}
+                />
+                <defs>
+                  <linearGradient id="aiGrad" x1="4" y1="2" x2="20" y2="22">
+                    <stop offset="0%" stopColor="hsl(280 80% 60%)" />
+                    <stop offset="50%" stopColor="hsl(200 90% 60%)" />
+                    <stop offset="100%" stopColor="hsl(330 85% 60%)" />
+                  </linearGradient>
+                  <linearGradient id="aiGrad2" x1="15" y1="3" x2="21" y2="9">
+                    <stop offset="0%" stopColor="hsl(45 95% 60%)" />
+                    <stop offset="100%" stopColor="hsl(330 85% 60%)" />
+                  </linearGradient>
+                  <linearGradient id="aiGrad3" x1="4" y1="15" x2="8" y2="19">
+                    <stop offset="0%" stopColor="hsl(160 70% 50%)" />
+                    <stop offset="100%" stopColor="hsl(200 90% 60%)" />
+                  </linearGradient>
+                </defs>
+              </motion.svg>
+            </div>
           </motion.button>
         </div>
       </motion.div>
@@ -427,6 +506,70 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
         )}
       </motion.div>
 
+      {/* Share sheet */}
+      {showShareSheet && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end sm:justify-center sm:items-center p-0 sm:p-4"
+          role="dialog"
+          aria-label={t("shareApp")}
+        >
+          <button
+            className="absolute inset-0 bg-black/50"
+            onClick={closeShareSheet}
+            aria-label={t("cancel")}
+          />
+          <motion.div
+            className="relative w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl bg-card border border-border p-5 pb-safe space-y-4 shadow-xl"
+            initial={{ opacity: 0, y: 80 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", damping: 28, stiffness: 300 }}
+          >
+            <p className="text-sm font-semibold text-foreground text-center">{t("shareApp")}</p>
+            <p className="text-xs text-muted-foreground text-center -mt-2">
+              {language === "hi" ? "ऐप लिंक शेयर करें" : "Share the app link with friends"}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={shareViaWhatsApp}
+                className="flex items-center justify-center gap-2.5 p-3.5 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/30 active:scale-[0.98] transition-transform"
+              >
+                <WhatsAppIcon />
+                <span className="text-xs font-medium text-foreground">WhatsApp</span>
+              </button>
+              <button
+                onClick={shareViaTelegram}
+                className="flex items-center justify-center gap-2.5 p-3.5 rounded-2xl bg-[#0088CC]/10 border border-[#0088CC]/30 active:scale-[0.98] transition-transform"
+              >
+                <TelegramIcon />
+                <span className="text-xs font-medium text-foreground">Telegram</span>
+              </button>
+              <button
+                onClick={copyShareLink}
+                className="flex items-center justify-center gap-2.5 p-3.5 rounded-2xl bg-secondary border border-border active:scale-[0.98] transition-transform"
+              >
+                <Copy size={22} className="text-muted-foreground" />
+                <span className="text-xs font-medium text-foreground">{language === "hi" ? "लिंक कॉपी करें" : "Copy link"}</span>
+              </button>
+              {navigator.share && (
+                <button
+                  onClick={shareViaOtherApps}
+                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-2xl bg-secondary border border-border active:scale-[0.98] transition-transform"
+                >
+                  <Share2 size={22} className="text-muted-foreground" />
+                  <span className="text-xs font-medium text-foreground">{language === "hi" ? "अन्य ऐप्स" : "More apps"}</span>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={closeShareSheet}
+              className="w-full py-3 rounded-xl text-xs font-medium text-muted-foreground bg-secondary active:bg-secondary/80 transition-colors"
+            >
+              {t("cancel")}
+            </button>
+          </motion.div>
+        </div>
+      )}
+
       {/* Logout */}
       {user && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
@@ -437,7 +580,9 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat }: MainScreenPro
             >
               <LogOut size={18} className="text-muted-foreground" />
               <span className="text-xs sm:text-sm font-medium text-foreground">{t("logout")}</span>
-              <span className="ml-auto text-[10px] text-muted-foreground truncate max-w-[140px]">{user.email}</span>
+              <span className="ml-auto text-[10px] text-muted-foreground truncate max-w-[140px]">
+                {userProfile?.displayName || userProfile?.email || user.email || ""}
+              </span>
             </button>
           ) : (
             <div className="rounded-2xl bg-card border border-border p-4 space-y-3">

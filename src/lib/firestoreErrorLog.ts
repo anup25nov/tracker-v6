@@ -1,8 +1,14 @@
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 
+function getDateTimeKey() {
+  const now = new Date();
+  const pad = (n: number, len = 2) => String(n).padStart(len, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}-${pad(now.getMilliseconds(), 3)}`;
+}
+
 /**
- * Log a UI error to Firestore `error_logs` collection.
+ * Log a UI error to Firestore `error_logs` collection with datetime as doc ID.
  */
 export async function logErrorToFirestore(error: {
   message: string;
@@ -12,7 +18,8 @@ export async function logErrorToFirestore(error: {
 }) {
   try {
     const user = auth.currentUser;
-    await addDoc(collection(db, "error_logs"), {
+    const docId = getDateTimeKey();
+    await setDoc(doc(db, "error_logs", docId), {
       email: user?.email || "anonymous",
       uid: user?.uid || null,
       message: error.message,
