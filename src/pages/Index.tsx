@@ -144,6 +144,7 @@ const Index = () => {
         onSelectSubject={(id) => setSelectedSubject(id)}
         onChangeExam={() => setShowExamSelect(true)}
         onOpenChat={() => setShowChat(true)}
+        onOpenProfile={() => setShowProfile(true)}
       />
     );
   };
