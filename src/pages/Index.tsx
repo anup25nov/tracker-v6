@@ -114,6 +114,14 @@ const Index = () => {
     );
   }
 
+  if (showProfile) {
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <ProfileScreen onBack={() => setShowProfile(false)} />
+      </Suspense>
+    );
+  }
+
   if (showChat) {
     return (
       <Suspense fallback={<LoadingSpinner />}>
