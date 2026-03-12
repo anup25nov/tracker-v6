@@ -19,6 +19,7 @@ const ProfileScreen = ({ onBack }: ProfileScreenProps) => {
   const [savedPhone, setSavedPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
   const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") !== "light");
 
   useEffect(() => {
