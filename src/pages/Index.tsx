@@ -31,6 +31,7 @@ const Index = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [showExamSelect, setShowExamSelect] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [skippedLogin, setSkippedLogin] = useState(() => {
     return localStorage.getItem("skippedLogin") === "true";
   });
