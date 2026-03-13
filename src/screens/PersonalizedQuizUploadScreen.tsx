@@ -28,6 +28,12 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
 
   const isHi = language === "hi";
 
+  const getMaxFileSizeBytes = (f: File) => {
+    if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) return 1 * 1024 * 1024; // 1MB
+    if (f.type.startsWith("image/") || /\.(png|jpg|jpeg|webp)$/i.test(f.name)) return 2 * 1024 * 1024; // 2MB
+    return 600 * 1024; // text/other supported files
+  };
+
   // Load remaining uploads
   useState(() => {
     if (user?.uid) {
@@ -46,9 +52,14 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
       return;
     }
 
-    // Max 5MB (keep payload size safe for function gateway)
-    if (f.size > 5 * 1024 * 1024) {
-      setError(isHi ? "फ़ाइल 5MB से छोटी होनी चाहिए" : "File must be under 5MB");
+    const maxSizeBytes = getMaxFileSizeBytes(f);
+    if (f.size > maxSizeBytes) {
+      const maxLabel = `${Math.floor(maxSizeBytes / 1024)}KB`;
+      setError(
+        isHi
+          ? `फ़ाइल बहुत बड़ी है। अधिकतम ${maxLabel} की फ़ाइल अपलोड करें।`
+          : `File is too large. Please upload a file up to ${maxLabel}.`
+      );
       return;
     }
 
@@ -270,7 +281,7 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
                   {isHi ? "PDF, इमेज या टेक्स्ट फ़ाइल चुनें" : "Select PDF, Image or Text file"}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  {isHi ? "अधिकतम 5MB" : "Max 5MB"}
+                  {isHi ? "इमेज 2MB • PDF 1MB • टेक्स्ट 600KB" : "Image 2MB • PDF 1MB • Text 600KB"}
                 </p>
               </>
             )}

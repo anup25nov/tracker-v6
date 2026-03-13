@@ -6,6 +6,26 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const MAX_INPUT_BYTES = {
+  image: 2 * 1024 * 1024, // 2MB
+  pdf: 1 * 1024 * 1024, // 1MB
+  text: 600 * 1024, // 600KB
+};
+
+const MAX_TEXT_CHARS = 12000;
+
+const estimateBase64Bytes = (base64: string) => {
+  const sanitized = base64.replace(/\s/g, "");
+  const padding = sanitized.endsWith("==") ? 2 : sanitized.endsWith("=") ? 1 : 0;
+  return Math.floor((sanitized.length * 3) / 4) - padding;
+};
+
+const decodeBase64Preview = (base64: string, maxBytes: number) => {
+  const maxChars = Math.floor((maxBytes * 4) / 3);
+  const safeChars = maxChars - (maxChars % 4);
+  return atob(base64.slice(0, safeChars));
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -21,6 +41,21 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "File data is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const isImage = fileType?.startsWith("image/") || /\.(png|jpg|jpeg|webp|gif)$/i.test(fileName);
+    const isPdf = fileType === "application/pdf" || /\.pdf$/i.test(fileName);
+
+    const estimatedBytes = estimateBase64Bytes(fileBase64);
+    const maxBytes = isImage ? MAX_INPUT_BYTES.image : isPdf ? MAX_INPUT_BYTES.pdf : MAX_INPUT_BYTES.text;
+
+    if (estimatedBytes > maxBytes) {
+      return new Response(
+        JSON.stringify({
+          error: `File is too large for quiz generation. Please use a smaller file (max ${Math.floor(maxBytes / 1024)}KB).`,
+        }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -53,9 +88,6 @@ IMPORTANT RULES:
 
 You MUST respond using the generate_quiz tool.`;
 
-    // Determine if file is an image or text-based
-    const isImage = fileType?.startsWith("image/") || /\.(png|jpg|jpeg|webp|gif)$/i.test(fileName);
-    const isPdf = fileType === "application/pdf" || /\.pdf$/i.test(fileName);
 
     let messages: any[];
 
@@ -78,67 +110,60 @@ You MUST respond using the generate_quiz tool.`;
         },
       ];
     } else if (isPdf) {
-      // For PDFs, decode base64 to text (basic extraction)
-      let textContent: string;
+      // Extract text preview from PDF bytes (lightweight, avoids memory spikes)
+      let textContent = "";
       try {
-        textContent = atob(fileBase64);
-        // Clean up binary PDF artifacts, keep readable text
-        textContent = textContent.replace(/[^\\x20-\\x7E\\n\\r\\t]/g, " ").replace(/\s{3,}/g, " ").trim();
-        if (textContent.length < 50) {
-          // If text extraction is poor, send as image to Gemini
-          messages = [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "image_url",
-                  image_url: { url: `data:application/pdf;base64,${fileBase64}` },
-                },
-                {
-                  type: "text",
-                  text: `Extract all text from this PDF and generate a quiz. File: ${fileName}`,
-                },
-              ],
-            },
-          ];
-        } else {
-          messages = [
-            {
-              role: "user",
-              content: `Here is the study material from "${fileName}":\n\n${textContent.slice(0, 15000)}\n\nGenerate a quiz based on this content.`,
-            },
-          ];
-        }
+        const previewBinary = decodeBase64Preview(fileBase64, 300 * 1024);
+        textContent = previewBinary
+          .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, " ")
+          .replace(/\s{2,}/g, " ")
+          .trim();
       } catch {
-        // Binary PDF - send to Gemini vision
-        messages = [
-          {
-            role: "user",
-            content: [
-              {
-                type: "image_url",
-                image_url: { url: `data:application/pdf;base64,${fileBase64}` },
-              },
-              {
-                type: "text",
-                text: `Extract all text from this PDF and generate a quiz. File: ${fileName}`,
-              },
-            ],
-          },
-        ];
+        textContent = "";
       }
+
+      if (textContent.length < 200) {
+        return new Response(
+          JSON.stringify({
+            error:
+              "Could not extract readable text from this PDF. Please upload a smaller text-based PDF, an image, or paste notes.",
+          }),
+          { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      messages = [
+        {
+          role: "user",
+          content: `Here is extracted study material from "${fileName}":\n\n${textContent.slice(0, MAX_TEXT_CHARS)}\n\nGenerate a quiz based on this content.`,
+        },
+      ];
     } else {
       // Plain text / notes
       let textContent: string;
       try {
-        textContent = atob(fileBase64);
+        const binaryPreview = decodeBase64Preview(fileBase64, 400 * 1024);
+        textContent = decodeURIComponent(escape(binaryPreview));
       } catch {
-        textContent = fileBase64;
+        try {
+          textContent = atob(fileBase64);
+        } catch {
+          textContent = fileBase64;
+        }
       }
+
+      textContent = textContent.trim();
+      if (!textContent) {
+        return new Response(
+          JSON.stringify({ error: "No readable text found in the input." }),
+          { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       messages = [
         {
           role: "user",
-          content: `Here is the study material from "${fileName}":\n\n${textContent.slice(0, 15000)}\n\nGenerate a quiz based on this content.`,
+          content: `Here is the study material from "${fileName}":\n\n${textContent.slice(0, MAX_TEXT_CHARS)}\n\nGenerate a quiz based on this content.`,
         },
       ];
     }
