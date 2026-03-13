@@ -46,8 +46,8 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
       return;
     }
 
-    // Max 5MB
-    if (f.size > 15 * 1024 * 1024) {
+    // Max 5MB (keep payload size safe for function gateway)
+    if (f.size > 5 * 1024 * 1024) {
       setError(isHi ? "फ़ाइल 5MB से छोटी होनी चाहिए" : "File must be under 5MB");
       return;
     }
