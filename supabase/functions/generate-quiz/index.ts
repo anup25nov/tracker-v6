@@ -44,6 +44,21 @@ serve(async (req) => {
       );
     }
 
+    const isImage = fileType?.startsWith("image/") || /\.(png|jpg|jpeg|webp|gif)$/i.test(fileName);
+    const isPdf = fileType === "application/pdf" || /\.pdf$/i.test(fileName);
+
+    const estimatedBytes = estimateBase64Bytes(fileBase64);
+    const maxBytes = isImage ? MAX_INPUT_BYTES.image : isPdf ? MAX_INPUT_BYTES.pdf : MAX_INPUT_BYTES.text;
+
+    if (estimatedBytes > maxBytes) {
+      return new Response(
+        JSON.stringify({
+          error: `File is too large for quiz generation. Please use a smaller file (max ${Math.floor(maxBytes / 1024)}KB).`,
+        }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const questionCount = Math.min(Math.max(numQuestions || 10, 5), 20);
     const type = quizType || "mcq";
     const lang = language === "hi" ? "Hindi" : "English";
