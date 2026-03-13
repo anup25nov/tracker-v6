@@ -28,6 +28,12 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
 
   const isHi = language === "hi";
 
+  const getMaxFileSizeBytes = (f: File) => {
+    if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) return 1 * 1024 * 1024; // 1MB
+    if (f.type.startsWith("image/") || /\.(png|jpg|jpeg|webp)$/i.test(f.name)) return 2 * 1024 * 1024; // 2MB
+    return 600 * 1024; // text/other supported files
+  };
+
   // Load remaining uploads
   useState(() => {
     if (user?.uid) {
