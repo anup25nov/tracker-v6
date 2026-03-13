@@ -165,7 +165,11 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
       onQuizGenerated();
     } catch (e: any) {
       let msg: string;
-      if (e?.message === "Failed to fetch" || e?.name === "TypeError") {
+      if (
+        e?.message === "Failed to fetch" ||
+        e?.name === "TypeError" ||
+        e?.name === "FunctionsFetchError"
+      ) {
         msg = isHi
           ? "सर्वर से कनेक्ट नहीं हो पाया। कृपया इंटरनेट कनेक्शन जांचें या बाद में प्रयास करें।"
           : "Could not connect to the server. Please check your internet connection or try again later.";
