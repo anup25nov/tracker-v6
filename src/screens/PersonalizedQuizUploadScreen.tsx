@@ -109,36 +109,48 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
         fileType = "text/plain";
       }
 
-      const resp = await fetch(GENERATE_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          fileBase64,
-          fileName,
-          fileType,
-          numQuestions,
-          quizType,
-          language,
-        }),
-      });
+      const payload = {
+        fileBase64,
+        fileName,
+        fileType,
+        numQuestions,
+        quizType,
+        language,
+      };
 
-      if (!resp.ok) {
-        const contentType = resp.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          const errData = await resp.json().catch(() => ({}));
-          throw new Error(errData.error || `Error ${resp.status}`);
+      const invokeGenerateQuiz = async (retries = 1): Promise<any> => {
+        const { data, error } = await supabase.functions.invoke("generate-quiz", {
+          body: payload,
+        });
+
+        if (!error) return data;
+
+        const status = error?.context?.status as number | undefined;
+        const isTransient =
+          error?.name === "FunctionsFetchError" ||
+          /Failed to fetch|network|timed out|gateway/i.test(error?.message || "") ||
+          status === 503 ||
+          status === 504;
+
+        if (retries > 0 && isTransient) {
+          return invokeGenerateQuiz(retries - 1);
         }
-        throw new Error(
-          resp.status === 404
-            ? (isHi ? "Quiz API उपलब्ध नहीं है। कृपया बाद में प्रयास करें।" : "Quiz API not available. Please ensure the edge function is deployed.")
-            : `Server error ${resp.status}`
-        );
-      }
 
-      const quizData = await resp.json();
+        const serverPayload = await error?.context?.json?.().catch(() => null);
+        throw new Error(
+          serverPayload?.error ||
+            (status === 404
+              ? isHi
+                ? "Quiz API उपलब्ध नहीं है। कृपया बाद में प्रयास करें।"
+                : "Quiz API not available. Please try again in a moment."
+              : error.message || `Server error ${status || "unknown"}`)
+        );
+      };
+
+      const quizData = await invokeGenerateQuiz();
+      if (!quizData?.questions || !Array.isArray(quizData.questions) || quizData.questions.length === 0) {
+        throw new Error(isHi ? "क्विज़ कंटेंट नहीं मिला। फिर से कोशिश करें।" : "Quiz generation returned no questions. Please try again.");
+      }
 
       // Save to Firestore
       await savePersonalizedQuiz(
