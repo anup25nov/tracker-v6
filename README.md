@@ -81,7 +81,7 @@ Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/c
 
 INTALLING APP IN THE PHONE USING CABLE
 #step 1 
-cd /Users/anupmishra/Desktop/repos/tracker-v7
+cd /Users/anupmishra/Desktop/repos/tracker-v6
 
 #Make sure web build is up to date
 npm run build
@@ -94,13 +94,13 @@ ls android/capacitor.settings.gradle
 
 
 #step 3
-cd /Users/anupmishra/Desktop/repos/tracker-v7/android
+cd /Users/anupmishra/Desktop/repos/tracker-v6/android
 ./gradlew assembleDebug
 
 #step 4
-cd /Users/anupmishra/Desktop/repos/tracker-v7/android
+cd /Users/anupmishra/Desktop/repos/tracker-v6/android
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## Build signed AAB for Play Store
-cd /Users/anupmishra/Desktop/repos/tracker-v7
+cd /Users/anupmishra/Desktop/repos/tracker-v6
 npm run build:aab

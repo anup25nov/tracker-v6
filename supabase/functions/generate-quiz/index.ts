@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const MAX_INPUT_BYTES = {
   image: 2 * 1024 * 1024, // 2MB
-  pdf: 1 * 1024 * 1024, // 1MB
+  pdf: 10 * 1024 * 1024, // 1MB
   text: 600 * 1024, // 600KB
 };
 
@@ -53,7 +53,7 @@ serve(async (req) => {
     if (estimatedBytes > maxBytes) {
       return new Response(
         JSON.stringify({
-          error: `File is too large for quiz generation. Please use a smaller file (max ${Math.floor(maxBytes / 1024)}KB).`,
+          error: `File is too large for quiz generation. Please use a smaller file estimated size ${estimatedBytes} and max allowed bytes ${maxBytes} (max ${Math.floor(maxBytes / 1024)}KB).`,
         }),
         { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
