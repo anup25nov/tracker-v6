@@ -4,14 +4,13 @@ import { ArrowLeft, Upload, FileText, Image, StickyNote, Loader2, Sparkles, Aler
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/hooks/useAuth";
 import { savePersonalizedQuiz, getRemainingUploads, type PersonalizedQuizQuestion } from "@/lib/personalizedQuiz";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface Props {
   onBack: () => void;
   onQuizGenerated: () => void;
 }
-
-const GENERATE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-quiz`;
 
 const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
   const { language } = useTranslation();
