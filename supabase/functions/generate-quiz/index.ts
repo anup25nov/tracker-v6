@@ -142,14 +142,28 @@ You MUST respond using the generate_quiz tool.`;
       // Plain text / notes
       let textContent: string;
       try {
-        textContent = atob(fileBase64);
+        const binaryPreview = decodeBase64Preview(fileBase64, 400 * 1024);
+        textContent = decodeURIComponent(escape(binaryPreview));
       } catch {
-        textContent = fileBase64;
+        try {
+          textContent = atob(fileBase64);
+        } catch {
+          textContent = fileBase64;
+        }
       }
+
+      textContent = textContent.trim();
+      if (!textContent) {
+        return new Response(
+          JSON.stringify({ error: "No readable text found in the input." }),
+          { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       messages = [
         {
           role: "user",
-          content: `Here is the study material from "${fileName}":\n\n${textContent.slice(0, 15000)}\n\nGenerate a quiz based on this content.`,
+          content: `Here is the study material from "${fileName}":\n\n${textContent.slice(0, MAX_TEXT_CHARS)}\n\nGenerate a quiz based on this content.`,
         },
       ];
     }
