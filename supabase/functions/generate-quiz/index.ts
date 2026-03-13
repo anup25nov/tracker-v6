@@ -110,55 +110,34 @@ You MUST respond using the generate_quiz tool.`;
         },
       ];
     } else if (isPdf) {
-      // For PDFs, decode base64 to text (basic extraction)
-      let textContent: string;
+      // Extract text preview from PDF bytes (lightweight, avoids memory spikes)
+      let textContent = "";
       try {
-        textContent = atob(fileBase64);
-        // Clean up binary PDF artifacts, keep readable text
-        textContent = textContent.replace(/[^\\x20-\\x7E\\n\\r\\t]/g, " ").replace(/\s{3,}/g, " ").trim();
-        if (textContent.length < 50) {
-          // If text extraction is poor, send as image to Gemini
-          messages = [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "image_url",
-                  image_url: { url: `data:application/pdf;base64,${fileBase64}` },
-                },
-                {
-                  type: "text",
-                  text: `Extract all text from this PDF and generate a quiz. File: ${fileName}`,
-                },
-              ],
-            },
-          ];
-        } else {
-          messages = [
-            {
-              role: "user",
-              content: `Here is the study material from "${fileName}":\n\n${textContent.slice(0, 15000)}\n\nGenerate a quiz based on this content.`,
-            },
-          ];
-        }
+        const previewBinary = decodeBase64Preview(fileBase64, 300 * 1024);
+        textContent = previewBinary
+          .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, " ")
+          .replace(/\s{2,}/g, " ")
+          .trim();
       } catch {
-        // Binary PDF - send to Gemini vision
-        messages = [
-          {
-            role: "user",
-            content: [
-              {
-                type: "image_url",
-                image_url: { url: `data:application/pdf;base64,${fileBase64}` },
-              },
-              {
-                type: "text",
-                text: `Extract all text from this PDF and generate a quiz. File: ${fileName}`,
-              },
-            ],
-          },
-        ];
+        textContent = "";
       }
+
+      if (textContent.length < 200) {
+        return new Response(
+          JSON.stringify({
+            error:
+              "Could not extract readable text from this PDF. Please upload a smaller text-based PDF, an image, or paste notes.",
+          }),
+          { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      messages = [
+        {
+          role: "user",
+          content: `Here is extracted study material from "${fileName}":\n\n${textContent.slice(0, MAX_TEXT_CHARS)}\n\nGenerate a quiz based on this content.`,
+        },
+      ];
     } else {
       // Plain text / notes
       let textContent: string;
