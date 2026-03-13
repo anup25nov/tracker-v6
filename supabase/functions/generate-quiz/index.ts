@@ -88,9 +88,6 @@ IMPORTANT RULES:
 
 You MUST respond using the generate_quiz tool.`;
 
-    // Determine if file is an image or text-based
-    const isImage = fileType?.startsWith("image/") || /\.(png|jpg|jpeg|webp|gif)$/i.test(fileName);
-    const isPdf = fileType === "application/pdf" || /\.pdf$/i.test(fileName);
 
     let messages: any[];
 
