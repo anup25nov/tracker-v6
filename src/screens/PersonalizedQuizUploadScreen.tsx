@@ -281,7 +281,7 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
                   {isHi ? "PDF, इमेज या टेक्स्ट फ़ाइल चुनें" : "Select PDF, Image or Text file"}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  {isHi ? "अधिकतम 5MB" : "Max 5MB"}
+                  {isHi ? "इमेज 2MB • PDF 1MB • टेक्स्ट 600KB" : "Image 2MB • PDF 1MB • Text 600KB"}
                 </p>
               </>
             )}
