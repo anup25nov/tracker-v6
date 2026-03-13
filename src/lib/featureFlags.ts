@@ -5,7 +5,7 @@ let remoteConfig: RemoteConfig | null = null;
 let flagsReady = false;
 
 const DEFAULT_FLAGS = {
-  enable_profile_booster_quiz_feature: false,
+  enable_profile_booster_quiz_feature: true,
 };
 
 export type FeatureFlag = keyof typeof DEFAULT_FLAGS;

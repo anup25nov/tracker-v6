@@ -61,9 +61,16 @@ const BoosterQuizScreen = ({ topicId, topicName, topicNameHi, onBack, onComplete
       setSelectedAnswer(null);
       setIsAnswered(false);
     } else {
-      // Quiz complete
+      // Quiz complete – compute final score from answers to avoid stale state
       setQuizComplete(true);
-      const finalScore = score;
+      const finalScore = Object.entries({ ...answers, [currentQ.id]: selectedAnswer! }).reduce(
+        (acc, [qId, ans]) => {
+          const q = questions.find((qq) => qq.id === qId);
+          return q && ans === q.correctAnswer ? acc + 1 : acc;
+        },
+        0
+      );
+      setScore(finalScore);
       if (user) {
         await saveBoosterQuizResult({
           userId: user.uid,
@@ -71,7 +78,7 @@ const BoosterQuizScreen = ({ topicId, topicName, topicNameHi, onBack, onComplete
           topicName,
           score: finalScore,
           totalQuestions: questions.length,
-          answers,
+          answers: { ...answers, [currentQ.id]: selectedAnswer! },
         });
       }
       onComplete(finalScore, questions.length);

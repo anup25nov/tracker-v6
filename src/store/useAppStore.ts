@@ -11,18 +11,29 @@ interface AchievementEvent {
   timestamp: number;
 }
 
+export interface LocalQuizResult {
+  topicId: string;
+  topicName: string;
+  score: number;
+  totalQuestions: number;
+  attemptedAt: number;
+}
+
 interface AppState {
   selectedExamId: string | null;
   syllabus: Subject[];
   language: Language;
   achievedMilestones: Record<string, number[]>;
   lastAchievement: AchievementEvent | null;
+  quizResults: LocalQuizResult[];
 
   selectExam: (examId: string) => void;
   toggleTopic: (subjectId: string, topicId: string, subtopicId?: string) => void;
   setLanguage: (lang: Language) => void;
   resetProgress: () => void;
   clearAchievement: () => void;
+  saveQuizResult: (result: LocalQuizResult) => void;
+  getQuizResult: (topicId: string) => LocalQuizResult | undefined;
   getSubjectProgress: (subjectId: string) => number;
   getSubjectUnits: (subjectId: string) => { completed: number; total: number };
   getOverallProgress: () => { completed: number; total: number; percent: number };
@@ -41,6 +52,7 @@ export const useAppStore = create<AppState>()(
       language: "en",
       achievedMilestones: {},
       lastAchievement: null,
+      quizResults: [],
 
       selectExam: (examId) => {
         const state = get();
@@ -154,6 +166,17 @@ export const useAppStore = create<AppState>()(
       },
 
       clearAchievement: () => set({ lastAchievement: null }),
+
+      saveQuizResult: (result) => {
+        const state = get();
+        // Replace existing result for same topic or add new
+        const filtered = state.quizResults.filter((r) => r.topicId !== result.topicId);
+        set({ quizResults: [...filtered, result] });
+      },
+
+      getQuizResult: (topicId) => {
+        return get().quizResults.find((r) => r.topicId === topicId);
+      },
 
       getSubjectProgress: (subjectId) => {
         const subject = get().syllabus.find((s) => s.id === subjectId);

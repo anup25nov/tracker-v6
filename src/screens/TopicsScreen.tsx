@@ -6,7 +6,6 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { getSubjectColor } from "@/lib/subjectColors";
 import { logScreenView, logTopicToggled } from "@/lib/firebase";
 import { isProfileBoosterQuizEnabled } from "@/lib/featureFlags";
-import { getAvailableQuizTopics } from "@/lib/boosterQuiz";
 import BoosterQuizPopup from "@/components/BoosterQuizPopup";
 import { toast } from "sonner";
 import type { Topic } from "@/data/syllabus";
@@ -34,25 +33,11 @@ const TopicsScreen = ({ subjectId, onBack, onStartQuiz }: TopicsScreenProps) => 
   const subject = syllabus.find((s) => s.id === subjectId);
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
   const [quizPopup, setQuizPopup] = useState<{ topicId: string; topicName: string; topicNameHi: string } | null>(null);
-  const [availableQuizTopics, setAvailableQuizTopics] = useState<string[]>([]);
-  const [completedTopicsBefore, setCompletedTopicsBefore] = useState<Set<string>>(new Set());
   const featureEnabled = isProfileBoosterQuizEnabled();
 
   useEffect(() => {
     logScreenView(`topics_${subjectId}`);
   }, [subjectId]);
-
-  // Track which topics are already complete on mount
-  useEffect(() => {
-    if (subject && featureEnabled) {
-      const completed = new Set<string>();
-      for (const topic of subject.topics) {
-        if (isTopicDone(topic)) completed.add(topic.id);
-      }
-      setCompletedTopicsBefore(completed);
-      getAvailableQuizTopics().then(setAvailableQuizTopics);
-    }
-  }, [subjectId, featureEnabled]);
 
   if (!subject) return null;
 
@@ -74,28 +59,19 @@ const TopicsScreen = ({ subjectId, onBack, onStartQuiz }: TopicsScreenProps) => 
   const handleToggleSubtopic = (topicId: string, subtopicId: string) => {
     const topic = subject.topics.find((t) => t.id === topicId);
     const subtopic = topic?.subtopics?.find((st) => st.id === subtopicId);
+    const isBeingCompleted = !subtopic?.completed;
     toggleTopic(subjectId, topicId, subtopicId);
-    logTopicToggled(subjectId, subtopicId, !subtopic?.completed);
+    logTopicToggled(subjectId, subtopicId, isBeingCompleted);
 
-    // Check if this toggle completes the topic (feature flag check)
-    if (featureEnabled && topic?.subtopics) {
-      // After toggle, check if all subtopics are now complete
-      const wasComplete = completedTopicsBefore.has(topicId);
-      if (!wasComplete) {
-        // Count: the toggled subtopic will flip, so check new state
-        const willBeComplete = topic.subtopics.every((st) =>
-          st.id === subtopicId ? !st.completed : st.completed
-        );
-        if (willBeComplete && availableQuizTopics.includes(topicId)) {
-          setTimeout(() => {
-            setQuizPopup({
-              topicId,
-              topicName: topic.name,
-              topicNameHi: topic.nameHi,
-            });
-          }, 600);
-        }
-      }
+    // Show booster quiz popup on every subtopic completion
+    if (featureEnabled && isBeingCompleted && topic) {
+      setTimeout(() => {
+        setQuizPopup({
+          topicId,
+          topicName: topic.name,
+          topicNameHi: topic.nameHi,
+        });
+      }, 600);
     }
   };
 

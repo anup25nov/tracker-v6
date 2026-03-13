@@ -1,14 +1,12 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sun, Moon, Phone, Save, Loader2, User as UserIcon, Mail, LogOut, Sparkles, RotateCcw, ChevronRight } from "lucide-react";
+import { ArrowLeft, Sun, Moon, Phone, Save, Loader2, User as UserIcon, Mail, LogOut } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/hooks/useAuth";
 import { getCurrentUserProfile, firebaseSignOut } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { isProfileBoosterQuizEnabled } from "@/lib/featureFlags";
-import { getAllQuizResults, getAvailableQuizTopics, type QuizResult } from "@/lib/boosterQuiz";
-import { useAppStore } from "@/store/useAppStore";
+import ProfileQuizSection from "@/components/ProfileQuizSection";
 
 interface ProfileScreenProps {
   onBack: () => void;
@@ -18,7 +16,6 @@ interface ProfileScreenProps {
 const ProfileScreen = ({ onBack, onStartQuiz }: ProfileScreenProps) => {
   const { language } = useTranslation();
   const { user } = useAuth();
-  const syllabus = useAppStore((s) => s.syllabus);
   const [userProfile, setUserProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [savedPhone, setSavedPhone] = useState("");
@@ -26,9 +23,6 @@ const ProfileScreen = ({ onBack, onStartQuiz }: ProfileScreenProps) => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") !== "light");
-  const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
-  const [availableQuizTopics, setAvailableQuizTopics] = useState<string[]>([]);
-  const featureEnabled = isProfileBoosterQuizEnabled();
 
   useEffect(() => {
     if (!user) return;
@@ -47,12 +41,7 @@ const ProfileScreen = ({ onBack, onStartQuiz }: ProfileScreenProps) => {
       }
     };
     loadPhone();
-
-    if (featureEnabled) {
-      getAllQuizResults(user.uid).then(setQuizResults);
-      getAvailableQuizTopics().then(setAvailableQuizTopics);
-    }
-  }, [user?.uid, featureEnabled]);
+  }, [user?.uid]);
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -82,23 +71,6 @@ const ProfileScreen = ({ onBack, onStartQuiz }: ProfileScreenProps) => {
       setSaving(false);
     }
   };
-
-  // Build quiz topic info from syllabus
-  const getTopicInfo = (topicId: string) => {
-    for (const subject of syllabus) {
-      const topic = subject.topics.find((t) => t.id === topicId);
-      if (topic) return { name: topic.name, nameHi: topic.nameHi };
-    }
-    return null;
-  };
-
-  // Get latest result per topic
-  const latestResultsByTopic = new Map<string, QuizResult>();
-  for (const r of quizResults) {
-    if (!latestResultsByTopic.has(r.topicId)) {
-      latestResultsByTopic.set(r.topicId, r);
-    }
-  }
 
   const displayName = userProfile?.displayName || user?.displayName || (language === "hi" ? "उपयोगकर्ता" : "User");
   const email = userProfile?.email || user?.email || "";
@@ -195,61 +167,12 @@ const ProfileScreen = ({ onBack, onStartQuiz }: ProfileScreenProps) => {
       </motion.div>
 
       {/* Booster Quiz Section */}
-      {featureEnabled && availableQuizTopics.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-          <div className="flex items-center gap-1.5 mb-3">
-            <Sparkles size={14} className="text-primary" />
-            <h2 className="text-xs sm:text-sm font-bold text-foreground">
-              {language === "hi" ? "बूस्टर क्विज़" : "Booster Quizzes"}
-            </h2>
-          </div>
-          <div className="rounded-2xl bg-card border border-border overflow-hidden divide-y divide-border">
-            {availableQuizTopics.map((topicId) => {
-              const topicInfo = getTopicInfo(topicId);
-              const result = latestResultsByTopic.get(topicId);
-              const topicDisplayName = topicInfo
-                ? (language === "hi" ? topicInfo.nameHi : topicInfo.name)
-                : topicId;
-
-              return (
-                <button
-                  key={topicId}
-                  className="w-full flex items-center gap-3 p-3.5 sm:p-4 active:bg-secondary/50 transition-colors text-left"
-                  onClick={() => {
-                    if (onStartQuiz && topicInfo) {
-                      onStartQuiz(topicId, topicInfo.name, topicInfo.nameHi);
-                    }
-                  }}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-foreground truncate">{topicDisplayName}</p>
-                    {result ? (
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {language === "hi" ? "स्कोर" : "Score"}: {result.score}/{result.totalQuestions} ({Math.round((result.score / result.totalQuestions) * 100)}%)
-                      </p>
-                    ) : (
-                      <p className="text-[10px] text-primary mt-0.5">
-                        {language === "hi" ? "अभी तक नहीं किया" : "Not attempted"}
-                      </p>
-                    )}
-                  </div>
-                  {result ? (
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <RotateCcw size={12} className="text-muted-foreground" />
-                      <span className="text-[10px] text-muted-foreground">{language === "hi" ? "दोबारा" : "Re-test"}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-[10px] font-medium text-primary">{language === "hi" ? "शुरू करें" : "Start"}</span>
-                      <ChevronRight size={12} className="text-primary" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
+      <ProfileQuizSection
+        language={language}
+        onStartQuiz={(topicId, topicName, topicNameHi) => {
+          onStartQuiz?.(topicId, topicName, topicNameHi);
+        }}
+      />
 
       {/* Logout */}
       {user && (
