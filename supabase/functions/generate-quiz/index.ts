@@ -6,6 +6,26 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const MAX_INPUT_BYTES = {
+  image: 2 * 1024 * 1024, // 2MB
+  pdf: 1 * 1024 * 1024, // 1MB
+  text: 600 * 1024, // 600KB
+};
+
+const MAX_TEXT_CHARS = 12000;
+
+const estimateBase64Bytes = (base64: string) => {
+  const sanitized = base64.replace(/\s/g, "");
+  const padding = sanitized.endsWith("==") ? 2 : sanitized.endsWith("=") ? 1 : 0;
+  return Math.floor((sanitized.length * 3) / 4) - padding;
+};
+
+const decodeBase64Preview = (base64: string, maxBytes: number) => {
+  const maxChars = Math.floor((maxBytes * 4) / 3);
+  const safeChars = maxChars - (maxChars % 4);
+  return atob(base64.slice(0, safeChars));
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
