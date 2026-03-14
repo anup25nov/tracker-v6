@@ -59,10 +59,9 @@ export async function loadNotes(
   uid: string,
   lastDoc?: QueryDocumentSnapshot | null
 ): Promise<{ notes: ShortNote[]; lastVisible: QueryDocumentSnapshot | null; hasMore: boolean }> {
-  const constraints = [orderBy("updatedAt", "desc"), limit(PAGE_SIZE + 1)];
-  if (lastDoc) constraints.push(startAfter(lastDoc));
-
-  const q = query(notesCollection(uid), ...constraints);
+  const q = lastDoc
+    ? query(notesCollection(uid), orderBy("updatedAt", "desc"), startAfter(lastDoc), limit(PAGE_SIZE + 1))
+    : query(notesCollection(uid), orderBy("updatedAt", "desc"), limit(PAGE_SIZE + 1));
   const snap = await getDocs(q);
 
   const hasMore = snap.docs.length > PAGE_SIZE;
