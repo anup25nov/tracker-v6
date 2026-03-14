@@ -6,8 +6,11 @@ import {
   getDocs,
   query,
   orderBy,
+  limit,
+  startAfter,
   serverTimestamp,
   Timestamp,
+  QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Capacitor } from "@capacitor/core";
@@ -17,8 +20,11 @@ export interface Reminder {
   text: string;
   scheduledAt: number; // epoch ms
   createdAt: number;
+  updatedAt: number;
   notified: boolean;
 }
+
+const PAGE_SIZE = 10;
 
 function remindersCollection(uid: string) {
   return collection(db, "users", uid, "reminders");
@@ -36,6 +42,7 @@ export async function saveReminder(
     scheduledAt: reminder.scheduledAt,
     notified: false,
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   });
 
   // Schedule local notification on native
@@ -46,28 +53,41 @@ export async function saveReminder(
 
 export async function deleteReminder(uid: string, remId: string): Promise<void> {
   await deleteDoc(doc(db, "users", uid, "reminders", remId));
-  // Cancel local notification
   await cancelLocalNotification(remId);
 }
 
-export async function loadReminders(uid: string): Promise<Reminder[]> {
-  const q = query(remindersCollection(uid), orderBy("scheduledAt", "asc"));
+/** Load reminders page by page, sorted by updatedAt desc */
+export async function loadReminders(
+  uid: string,
+  lastDoc?: QueryDocumentSnapshot | null
+): Promise<{ reminders: Reminder[]; lastVisible: QueryDocumentSnapshot | null; hasMore: boolean }> {
+  const constraints = [orderBy("updatedAt", "desc"), limit(PAGE_SIZE + 1)];
+  if (lastDoc) constraints.push(startAfter(lastDoc));
+
+  const q = query(remindersCollection(uid), ...constraints);
   const snap = await getDocs(q);
-  return snap.docs.map((d) => {
+
+  const hasMore = snap.docs.length > PAGE_SIZE;
+  const docs = hasMore ? snap.docs.slice(0, PAGE_SIZE) : snap.docs;
+  const lastVisible = docs.length > 0 ? docs[docs.length - 1] : null;
+
+  const reminders: Reminder[] = docs.map((d) => {
     const data = d.data();
     return {
       id: d.id,
       text: data.text || "",
       scheduledAt: data.scheduledAt || 0,
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toMillis() : Date.now(),
+      updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toMillis() : (data.createdAt instanceof Timestamp ? data.createdAt.toMillis() : Date.now()),
       notified: data.notified || false,
     };
   });
+
+  return { reminders, lastVisible, hasMore };
 }
 
 // ---- Local Notification Helpers ----
 
-// We use a simple hash of the string id to create a numeric notification id
 function stringToNotificationId(id: string): number {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
@@ -77,19 +97,34 @@ function stringToNotificationId(id: string): number {
   return Math.abs(hash);
 }
 
-// Track scheduled web timeouts so we can cancel them
 const webTimeouts = new Map<string, number>();
 
 async function scheduleLocalNotification(id: string, text: string, scheduledAt: number) {
-  // Native (Capacitor)
   if (Capacitor.isNativePlatform()) {
     try {
       const { LocalNotifications } = await import("@capacitor/local-notifications");
 
+      // Request permission
       const permResult = await LocalNotifications.requestPermissions();
       if (permResult.display !== "granted") {
         console.warn("[Reminders] Notification permission not granted");
         return;
+      }
+
+      // Create notification channel for Android (required for Android 8+)
+      try {
+        await LocalNotifications.createChannel({
+          id: "reminders",
+          name: "Study Reminders",
+          description: "Notifications for study reminders",
+          importance: 5, // Max importance
+          visibility: 1, // Public
+          vibration: true,
+          sound: "default",
+          lights: true,
+        });
+      } catch (channelErr) {
+        console.warn("[Reminders] Channel creation skipped:", channelErr);
       }
 
       await LocalNotifications.schedule({
@@ -97,10 +132,15 @@ async function scheduleLocalNotification(id: string, text: string, scheduledAt: 
           {
             id: stringToNotificationId(id),
             title: "SSC Exam Sathi – Reminder",
-            body: text,
-            schedule: { at: new Date(scheduledAt) },
+            body: text || "Study reminder!",
+            schedule: {
+              at: new Date(scheduledAt),
+              allowWhileIdle: true,
+            },
+            channelId: "reminders",
             sound: "default",
             smallIcon: "ic_launcher",
+            autoCancel: true,
           },
         ],
       });
@@ -111,42 +151,34 @@ async function scheduleLocalNotification(id: string, text: string, scheduledAt: 
     return;
   }
 
-  // Web fallback — request permission + schedule via setTimeout
+  // Web fallback
   try {
-    if (!("Notification" in window)) {
-      console.warn("[Reminders] Web notifications not supported");
-      return;
-    }
+    if (!("Notification" in window)) return;
 
     if (Notification.permission === "default") {
       await Notification.requestPermission();
     }
 
-    if (Notification.permission !== "granted") {
-      console.warn("[Reminders] Web notification permission denied");
-      return;
-    }
+    if (Notification.permission !== "granted") return;
 
     const delay = scheduledAt - Date.now();
-    if (delay <= 0) return; // already past
+    if (delay <= 0) return;
 
     const timeoutId = window.setTimeout(() => {
       new Notification("SSC Exam Sathi – Reminder", {
-        body: text,
+        body: text || "Study reminder!",
         icon: "/icons/icon-192.png",
       });
       webTimeouts.delete(id);
     }, delay);
 
     webTimeouts.set(id, timeoutId);
-    console.log("[Reminders] Web notification scheduled for", new Date(scheduledAt));
   } catch (e) {
     console.error("[Reminders] Failed to schedule web notification:", e);
   }
 }
 
 async function cancelLocalNotification(id: string) {
-  // Cancel web timeout
   const timeoutId = webTimeouts.get(id);
   if (timeoutId) {
     window.clearTimeout(timeoutId);
