@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Plus, Bell, Trash2, Clock, Loader2, LogIn, CalendarPlus, AlarmClock, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -13,6 +13,8 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import AlarmTimePicker from "@/components/AlarmTimePicker";
+import { QueryDocumentSnapshot } from "firebase/firestore";
 
 interface Props {
   onBack: () => void;
@@ -23,6 +25,7 @@ const RemindersScreen = ({ onBack }: Props) => {
   const { user } = useAuth();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [text, setText] = useState("");
@@ -30,20 +33,40 @@ const RemindersScreen = ({ onBack }: Props) => {
   const [hour, setHour] = useState("09");
   const [minute, setMinute] = useState("00");
   const [ampm, setAmpm] = useState<"AM" | "PM">("AM");
+  const [hasMore, setHasMore] = useState(false);
+  const lastDocRef = useRef<QueryDocumentSnapshot | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const isHi = language === "hi";
 
-  useEffect(() => {
-    if (!user?.uid) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    loadReminders(user.uid)
-      .then(setReminders)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const fetchReminders = useCallback(async (append = false) => {
+    if (!user?.uid) { setLoading(false); return; }
+    if (append) setLoadingMore(true); else setLoading(true);
+
+    try {
+      const result = await loadReminders(user.uid, append ? lastDocRef.current : null);
+      lastDocRef.current = result.lastVisible;
+      setHasMore(result.hasMore);
+      setReminders((prev) => append ? [...prev, ...result.reminders] : result.reminders);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); setLoadingMore(false); }
   }, [user?.uid]);
+
+  useEffect(() => { fetchReminders(); }, [fetchReminders]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      if (loadingMore || !hasMore) return;
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
+        fetchReminders(true);
+      }
+    };
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [loadingMore, hasMore, fetchReminders]);
 
   const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
@@ -52,7 +75,7 @@ const RemindersScreen = ({ onBack }: Props) => {
       setSelectedDates(prev => prev.filter(d => d.toDateString() !== date.toDateString()));
     } else {
       if (selectedDates.length >= 7) {
-        toast.error(isHi ? "अधिकतम 7 तिथियाँ अनुमत हैं" : "Maximum 7 dates allowed");
+        toast.error(isHi ? "अधिकतम 7 तिथियाँ" : "Max 7 dates");
         return;
       }
       setSelectedDates(prev => [...prev, date]);
@@ -73,23 +96,13 @@ const RemindersScreen = ({ onBack }: Props) => {
   };
 
   const handleSave = async () => {
-    if (!user?.uid) {
-      toast.error(isHi ? "कृपया पहले लॉगिन करें" : "Please login first");
-      return;
-    }
-    if (!text.trim()) {
-      toast.error(isHi ? "रिमाइंडर टेक्स्ट भरें" : "Enter reminder text");
-      return;
-    }
-    if (selectedDates.length === 0) {
-      toast.error(isHi ? "कम से कम एक तिथि चुनें" : "Select at least one date");
-      return;
-    }
+    if (!user?.uid) { toast.error(isHi ? "कृपया पहले लॉगिन करें" : "Please login first"); return; }
+    if (selectedDates.length === 0) { toast.error(isHi ? "कम से कम एक तिथि चुनें" : "Select at least one date"); return; }
 
     const now = Date.now();
     for (const d of selectedDates) {
       if (getScheduledTime(d) <= now) {
-        toast.error(isHi ? "सभी तिथियाँ भविष्य में होनी चाहिए" : "All dates/times must be in the future");
+        toast.error(isHi ? "समय भविष्य में होना चाहिए" : "Time must be in the future");
         return;
       }
     }
@@ -97,28 +110,19 @@ const RemindersScreen = ({ onBack }: Props) => {
     setSaving(true);
     try {
       for (const d of selectedDates) {
-        const scheduledAt = getScheduledTime(d);
-        await saveReminder(user.uid, { text: text.trim(), scheduledAt });
+        await saveReminder(user.uid, { text: text.trim(), scheduledAt: getScheduledTime(d) });
       }
-      const updated = await loadReminders(user.uid);
-      setReminders(updated);
-      setText("");
-      setSelectedDates([]);
-      setHour("09");
-      setMinute("00");
-      setAmpm("AM");
+      lastDocRef.current = null;
+      await fetchReminders();
+      setText(""); setSelectedDates([]); setHour("09"); setMinute("00"); setAmpm("AM");
       setShowForm(false);
       toast.success(
         selectedDates.length > 1
-          ? (isHi ? `${selectedDates.length} रिमाइंडर सेट हो गए ⏰` : `${selectedDates.length} reminders set ⏰`)
-          : (isHi ? "रिमाइंडर सेट हो गया ⏰" : "Reminder set ⏰")
+          ? (isHi ? `${selectedDates.length} रिमाइंडर सेट ⏰` : `${selectedDates.length} reminders set ⏰`)
+          : (isHi ? "रिमाइंडर सेट ⏰" : "Reminder set ⏰")
       );
-    } catch (e) {
-      console.error(e);
-      toast.error(isHi ? "सेव करने में विफल" : "Failed to save");
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { console.error(e); toast.error(isHi ? "सेव विफल" : "Failed to save"); }
+    finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
@@ -126,22 +130,16 @@ const RemindersScreen = ({ onBack }: Props) => {
     try {
       await deleteReminder(user.uid, id);
       setReminders((prev) => prev.filter((r) => r.id !== id));
-      toast.success(isHi ? "रिमाइंडर हटाया गया" : "Reminder deleted");
-    } catch (e) {
-      console.error(e);
-    }
+      toast.success(isHi ? "रिमाइंडर हटाया" : "Reminder deleted");
+    } catch (e) { console.error(e); }
   };
 
   const now = Date.now();
   const upcomingReminders = reminders.filter(r => r.scheduledAt >= now);
   const pastReminders = reminders.filter(r => r.scheduledAt < now);
 
-  // Time picker options
-  const hours = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
-  const minutes = ["00", "15", "30", "45"];
-
   return (
-    <div className="min-h-screen px-3 sm:px-4 pt-6 pb-8 max-w-lg mx-auto space-y-4">
+    <div ref={scrollRef} className="min-h-screen max-h-screen overflow-y-auto px-3 sm:px-4 pt-6 pb-8 max-w-lg mx-auto space-y-4">
       {/* Header */}
       <motion.div className="flex items-center gap-3" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <button onClick={onBack} className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center active:scale-90 transition-transform">
@@ -166,7 +164,7 @@ const RemindersScreen = ({ onBack }: Props) => {
         )}
       </motion.div>
 
-      {/* Create Form - Full card redesign */}
+      {/* Create Form */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -175,14 +173,14 @@ const RemindersScreen = ({ onBack }: Props) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
           >
-            {/* Step 1: What to remember */}
+            {/* Optional label */}
             <div className="p-4 border-b border-border">
               <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-                {isHi ? "📝 क्या याद दिलाना है?" : "📝 What to remind?"}
+                {isHi ? "📝 लेबल (वैकल्पिक)" : "📝 Label (optional)"}
               </label>
               <input
                 type="text"
-                placeholder={isHi ? "जैसे: Math Chapter 5 पढ़ना है..." : "e.g., Revise Math Chapter 5..."}
+                placeholder={isHi ? "जैसे: Math Chapter 5..." : "e.g., Revise Math Ch 5..."}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 maxLength={200}
@@ -190,14 +188,11 @@ const RemindersScreen = ({ onBack }: Props) => {
               />
             </div>
 
-            {/* Step 2: Pick dates with calendar */}
+            {/* Pick dates */}
             <div className="p-4 border-b border-border">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {isHi ? `📅 तिथि चुनें (${selectedDates.length}/7)` : `📅 Pick dates (${selectedDates.length}/7)`}
-                </label>
-              </div>
-              
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
+                {isHi ? `📅 तिथि चुनें (${selectedDates.length}/7)` : `📅 Pick dates (${selectedDates.length}/7)`}
+              </label>
               <div className="flex justify-center">
                 <Calendar
                   mode="single"
@@ -205,75 +200,35 @@ const RemindersScreen = ({ onBack }: Props) => {
                   onSelect={handleDateSelect}
                   disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                   className={cn("p-2 pointer-events-auto rounded-xl border border-border bg-secondary/30")}
-                  modifiers={{
-                    selected: selectedDates,
-                  }}
-                  modifiersClassNames={{
-                    selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
-                  }}
+                  modifiers={{ selected: selectedDates }}
+                  modifiersClassNames={{ selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" }}
                 />
               </div>
-
-              {/* Selected dates chips */}
               {selectedDates.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {selectedDates.sort((a, b) => a.getTime() - b.getTime()).map((d, i) => (
-                    <span
-                      key={i}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20 text-xs font-medium text-foreground"
-                    >
+                    <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20 text-xs font-medium text-foreground">
                       {format(d, "dd MMM")}
-                      <button onClick={() => removeDate(d)} className="ml-0.5 hover:text-destructive">
-                        <X size={12} />
-                      </button>
+                      <button onClick={() => removeDate(d)} className="ml-0.5 hover:text-destructive"><X size={12} /></button>
                     </span>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Step 3: Pick time */}
+            {/* Alarm-style time picker */}
             <div className="p-4 border-b border-border">
               <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
                 {isHi ? "🕐 समय चुनें" : "🕐 Pick time"}
               </label>
-              <div className="flex items-center gap-2">
-                <select
-                  value={hour}
-                  onChange={(e) => setHour(e.target.value)}
-                  className="flex-1 bg-secondary rounded-xl px-3 py-2.5 text-sm text-foreground outline-none border border-border focus:border-primary appearance-none text-center font-semibold"
-                >
-                  {hours.map(h => <option key={h} value={h}>{h}</option>)}
-                </select>
-                <span className="text-lg font-bold text-muted-foreground">:</span>
-                <select
-                  value={minute}
-                  onChange={(e) => setMinute(e.target.value)}
-                  className="flex-1 bg-secondary rounded-xl px-3 py-2.5 text-sm text-foreground outline-none border border-border focus:border-primary appearance-none text-center font-semibold"
-                >
-                  {minutes.map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
-                <div className="flex rounded-xl border border-border overflow-hidden">
-                  <button
-                    onClick={() => setAmpm("AM")}
-                    className={cn(
-                      "px-3 py-2.5 text-xs font-bold transition-colors",
-                      ampm === "AM" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
-                    )}
-                  >
-                    AM
-                  </button>
-                  <button
-                    onClick={() => setAmpm("PM")}
-                    className={cn(
-                      "px-3 py-2.5 text-xs font-bold transition-colors",
-                      ampm === "PM" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
-                    )}
-                  >
-                    PM
-                  </button>
-                </div>
-              </div>
+              <AlarmTimePicker
+                hour={hour}
+                minute={minute}
+                ampm={ampm}
+                onHourChange={setHour}
+                onMinuteChange={setMinute}
+                onAmpmChange={setAmpm}
+              />
             </div>
 
             {/* Actions */}
@@ -286,7 +241,7 @@ const RemindersScreen = ({ onBack }: Props) => {
               </button>
               <button
                 onClick={handleSave}
-                disabled={saving || !text.trim() || selectedDates.length === 0}
+                disabled={saving || selectedDates.length === 0}
                 className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold active:scale-[0.98] transition-transform disabled:opacity-40 flex items-center justify-center gap-2"
               >
                 {saving ? <Loader2 size={16} className="animate-spin" /> : <AlarmClock size={16} />}
@@ -311,10 +266,10 @@ const RemindersScreen = ({ onBack }: Props) => {
           </div>
           <div className="space-y-1">
             <p className="text-sm font-bold text-foreground">
-              {isHi ? "रिमाइंडर सेव करने के लिए लॉगिन करें" : "Login to save reminders"}
+              {isHi ? "रिमाइंडर के लिए लॉगिन करें" : "Login to save reminders"}
             </p>
             <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
-              {isHi ? "अपने रिमाइंडर सभी डिवाइसों पर सिंक करें" : "Sync your reminders across all devices"}
+              {isHi ? "सभी डिवाइसों पर सिंक करें" : "Sync across all devices"}
             </p>
           </div>
         </motion.div>
@@ -324,13 +279,9 @@ const RemindersScreen = ({ onBack }: Props) => {
             <CalendarPlus size={32} className="text-primary" />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-bold text-foreground">
-              {isHi ? "कोई रिमाइंडर नहीं" : "No reminders yet"}
-            </p>
+            <p className="text-sm font-bold text-foreground">{isHi ? "कोई रिमाइंडर नहीं" : "No reminders yet"}</p>
             <p className="text-xs text-muted-foreground max-w-[250px] mx-auto">
-              {isHi
-                ? "पढ़ाई का शेड्यूल बनाएं, फ़ोन पर अलर्ट पाएं!"
-                : "Schedule study sessions & get phone alerts!"}
+              {isHi ? "पढ़ाई का शेड्यूल बनाएं!" : "Schedule study sessions!"}
             </p>
           </div>
           <button
@@ -361,7 +312,7 @@ const RemindersScreen = ({ onBack }: Props) => {
                     <Bell size={18} className="text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground break-words">{r.text}</p>
+                    <p className="text-sm font-medium text-foreground break-words">{r.text || (isHi ? "रिमाइंडर" : "Reminder")}</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <Clock size={10} className="text-muted-foreground" />
                       <p className="text-[10px] text-muted-foreground">
@@ -398,7 +349,7 @@ const RemindersScreen = ({ onBack }: Props) => {
                     <Clock size={14} className="text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground break-words">{r.text}</p>
+                    <p className="text-xs font-medium text-foreground break-words">{r.text || (isHi ? "रिमाइंडर" : "Reminder")}</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
                       {format(new Date(r.scheduledAt), "dd MMM yyyy, hh:mm a")}
                     </p>
@@ -412,6 +363,18 @@ const RemindersScreen = ({ onBack }: Props) => {
                 </motion.div>
               ))}
             </div>
+          )}
+
+          {/* Load more indicator */}
+          {loadingMore && (
+            <div className="flex justify-center py-4">
+              <Loader2 size={20} className="animate-spin text-primary" />
+            </div>
+          )}
+          {!hasMore && reminders.length > 0 && (
+            <p className="text-center text-[10px] text-muted-foreground py-2">
+              {isHi ? "सभी रिमाइंडर दिखाए गए" : "All reminders shown"}
+            </p>
           )}
         </div>
       )}
