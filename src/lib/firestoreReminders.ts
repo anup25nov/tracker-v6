@@ -77,37 +77,82 @@ function stringToNotificationId(id: string): number {
   return Math.abs(hash);
 }
 
+// Track scheduled web timeouts so we can cancel them
+const webTimeouts = new Map<string, number>();
+
 async function scheduleLocalNotification(id: string, text: string, scheduledAt: number) {
-  if (!Capacitor.isNativePlatform()) return;
+  // Native (Capacitor)
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const { LocalNotifications } = await import("@capacitor/local-notifications");
 
+      const permResult = await LocalNotifications.requestPermissions();
+      if (permResult.display !== "granted") {
+        console.warn("[Reminders] Notification permission not granted");
+        return;
+      }
+
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: stringToNotificationId(id),
+            title: "SSC Exam Sathi – Reminder",
+            body: text,
+            schedule: { at: new Date(scheduledAt) },
+            sound: "default",
+            smallIcon: "ic_launcher",
+          },
+        ],
+      });
+      console.log("[Reminders] Local notification scheduled for", new Date(scheduledAt));
+    } catch (e) {
+      console.error("[Reminders] Failed to schedule notification:", e);
+    }
+    return;
+  }
+
+  // Web fallback — request permission + schedule via setTimeout
   try {
-    const { LocalNotifications } = await import("@capacitor/local-notifications");
-
-    const permResult = await LocalNotifications.requestPermissions();
-    if (permResult.display !== "granted") {
-      console.warn("[Reminders] Notification permission not granted");
+    if (!("Notification" in window)) {
+      console.warn("[Reminders] Web notifications not supported");
       return;
     }
 
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          id: stringToNotificationId(id),
-          title: "SSC Exam Sathi – Reminder",
-          body: text,
-          schedule: { at: new Date(scheduledAt) },
-          sound: "default",
-          smallIcon: "ic_launcher",
-        },
-      ],
-    });
-    console.log("[Reminders] Local notification scheduled for", new Date(scheduledAt));
+    if (Notification.permission === "default") {
+      await Notification.requestPermission();
+    }
+
+    if (Notification.permission !== "granted") {
+      console.warn("[Reminders] Web notification permission denied");
+      return;
+    }
+
+    const delay = scheduledAt - Date.now();
+    if (delay <= 0) return; // already past
+
+    const timeoutId = window.setTimeout(() => {
+      new Notification("SSC Exam Sathi – Reminder", {
+        body: text,
+        icon: "/icons/icon-192.png",
+      });
+      webTimeouts.delete(id);
+    }, delay);
+
+    webTimeouts.set(id, timeoutId);
+    console.log("[Reminders] Web notification scheduled for", new Date(scheduledAt));
   } catch (e) {
-    console.error("[Reminders] Failed to schedule notification:", e);
+    console.error("[Reminders] Failed to schedule web notification:", e);
   }
 }
 
 async function cancelLocalNotification(id: string) {
+  // Cancel web timeout
+  const timeoutId = webTimeouts.get(id);
+  if (timeoutId) {
+    window.clearTimeout(timeoutId);
+    webTimeouts.delete(id);
+  }
+
   if (!Capacitor.isNativePlatform()) return;
   try {
     const { LocalNotifications } = await import("@capacitor/local-notifications");

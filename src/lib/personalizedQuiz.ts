@@ -67,13 +67,31 @@ export async function savePersonalizedQuiz(
  */
 export async function getUserQuizzes(userId: string): Promise<PersonalizedQuiz[]> {
   try {
-    const q = query(
-      collection(db, COLLECTION),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as PersonalizedQuiz));
+    // Try with orderBy first (requires composite index)
+    try {
+      const q = query(
+        collection(db, COLLECTION),
+        where("userId", "==", userId),
+        orderBy("createdAt", "desc")
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as PersonalizedQuiz));
+    } catch (indexError: any) {
+      // If composite index is missing, fall back to unordered query
+      console.warn("[PersonalizedQuiz] orderBy query failed (possibly missing index), falling back:", indexError?.message);
+      const q = query(
+        collection(db, COLLECTION),
+        where("userId", "==", userId)
+      );
+      const snapshot = await getDocs(q);
+      const quizzes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as PersonalizedQuiz));
+      // Sort client-side
+      return quizzes.sort((a, b) => {
+        const aTime = a.createdAt?.seconds || 0;
+        const bTime = b.createdAt?.seconds || 0;
+        return bTime - aTime;
+      });
+    }
   } catch (error) {
     console.error("Error fetching user quizzes:", error);
     return [];

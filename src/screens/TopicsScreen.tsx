@@ -63,15 +63,20 @@ const TopicsScreen = ({ subjectId, onBack, onStartQuiz }: TopicsScreenProps) => 
     toggleTopic(subjectId, topicId, subtopicId);
     logTopicToggled(subjectId, subtopicId, isBeingCompleted);
 
-    // Show booster quiz popup on every subtopic completion
-    if (featureEnabled && isBeingCompleted && topic) {
-      setTimeout(() => {
-        setQuizPopup({
-          topicId,
-          topicName: topic.name,
-          topicNameHi: topic.nameHi,
-        });
-      }, 600);
+    // Show booster quiz popup only when ALL subtopics of the topic are completed
+    if (featureEnabled && isBeingCompleted && topic?.subtopics?.length) {
+      const allDoneAfterToggle = topic.subtopics.every((st) =>
+        st.id === subtopicId ? true : st.completed
+      );
+      if (allDoneAfterToggle) {
+        setTimeout(() => {
+          setQuizPopup({
+            topicId,
+            topicName: topic.name,
+            topicNameHi: topic.nameHi,
+          });
+        }, 600);
+      }
     }
   };
 

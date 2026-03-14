@@ -15,6 +15,7 @@ const ExamSelectScreen = lazy(() => import("@/screens/ExamSelectScreen"));
 const ChatScreen = lazy(() => import("@/screens/ChatScreen"));
 const ProfileScreen = lazy(() => import("@/screens/ProfileScreen"));
 const BoosterQuizScreen = lazy(() => import("@/screens/BoosterQuizScreen"));
+const BoosterQuizLibraryScreen = lazy(() => import("@/screens/BoosterQuizLibraryScreen"));
 const PersonalizedQuizLibraryScreen = lazy(() => import("@/screens/PersonalizedQuizLibraryScreen"));
 const PersonalizedQuizUploadScreen = lazy(() => import("@/screens/PersonalizedQuizUploadScreen"));
 const PersonalizedQuizPlayScreen = lazy(() => import("@/screens/PersonalizedQuizPlayScreen"));
@@ -50,6 +51,7 @@ const Index = () => {
   const [activePersonalizedQuiz, setActivePersonalizedQuiz] = useState<any>(null);
   const [showReminders, setShowReminders] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
+  const [showBoosterLibrary, setShowBoosterLibrary] = useState(false);
   const [skippedLogin, setSkippedLogin] = useState(() => {
     return localStorage.getItem("skippedLogin") === "true";
   });
@@ -64,6 +66,7 @@ const Index = () => {
   const activePersonalizedQuizRef = useRef<any>(null);
   const showRemindersRef = useRef(false);
   const showNotesRef = useRef(false);
+  const showBoosterLibraryRef = useRef(false);
 
   useEffect(() => { selectedSubjectRef.current = selectedSubject; }, [selectedSubject]);
   useEffect(() => { showExamSelectRef.current = showExamSelect; }, [showExamSelect]);
@@ -75,6 +78,7 @@ const Index = () => {
   useEffect(() => { activePersonalizedQuizRef.current = activePersonalizedQuiz; }, [activePersonalizedQuiz]);
   useEffect(() => { showRemindersRef.current = showReminders; }, [showReminders]);
   useEffect(() => { showNotesRef.current = showNotes; }, [showNotes]);
+  useEffect(() => { showBoosterLibraryRef.current = showBoosterLibrary; }, [showBoosterLibrary]);
 
   // Load Firestore data when user logs in + seed quiz data once
   useEffect(() => {
@@ -104,6 +108,7 @@ const Index = () => {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
     const listener = CapacitorApp.addListener("backButton", () => {
+      if (showBoosterLibraryRef.current) { setShowBoosterLibrary(false); return; }
       if (showNotesRef.current) { setShowNotes(false); return; }
       if (showRemindersRef.current) { setShowReminders(false); return; }
       if (activePersonalizedQuizRef.current) { setActivePersonalizedQuiz(null); return; }
@@ -234,6 +239,20 @@ const Index = () => {
     );
   }
 
+  if (showBoosterLibrary) {
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <BoosterQuizLibraryScreen
+          onBack={() => setShowBoosterLibrary(false)}
+          onStartQuiz={(topicId, topicName, topicNameHi) => {
+            setShowBoosterLibrary(false);
+            setActiveQuiz({ topicId, topicName, topicNameHi });
+          }}
+        />
+      </Suspense>
+    );
+  }
+
   if (showNotes) {
     return (
       <Suspense fallback={<LoadingSpinner />}>
@@ -247,10 +266,6 @@ const Index = () => {
       <Suspense fallback={<LoadingSpinner />}>
         <ProfileScreen
           onBack={() => setShowProfile(false)}
-          onStartQuiz={(topicId, topicName, topicNameHi) => {
-            setShowProfile(false);
-            setActiveQuiz({ topicId, topicName, topicNameHi });
-          }}
         />
       </Suspense>
     );
@@ -285,6 +300,7 @@ const Index = () => {
         onOpenMyQuizzes={() => setShowMyQuizzes(true)}
         onOpenReminders={() => setShowReminders(true)}
         onOpenNotes={() => setShowNotes(true)}
+        onOpenBoosterQuizzes={() => setShowBoosterLibrary(true)}
       />
     );
   };

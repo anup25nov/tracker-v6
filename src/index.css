@@ -60,33 +60,33 @@
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 240 15% 9%;
+    --foreground: 210 40% 96%;
 
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 12% 14%;
+    --card-foreground: 210 40% 96%;
 
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 12% 14%;
+    --popover-foreground: 210 40% 96%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 158 64% 52%;
+    --primary-foreground: 240 15% 9%;
 
-    --secondary: 217 33% 22%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 10% 18%;
+    --secondary-foreground: 210 40% 96%;
 
-    --muted: 217 33% 22%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 240 10% 18%;
+    --muted-foreground: 220 15% 60%;
 
-    --accent: 142 71% 45%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 240 15% 9%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 25%;
-    --input: 217 33% 25%;
-    --ring: 217 91% 60%;
+    --border: 240 10% 22%;
+    --input: 240 10% 22%;
+    --ring: 158 64% 52%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
@@ -94,21 +94,21 @@
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --progress-track: 217 33% 14%;
-    --progress-fill: 217 91% 60%;
+    --progress-track: 240 10% 15%;
+    --progress-fill: 158 64% 52%;
 
     --achievement-gold: 45 93% 47%;
     --achievement-silver: 210 11% 71%;
     --achievement-bronze: 25 76% 49%;
 
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217 33% 22%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 25%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 240 15% 9%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 158 64% 52%;
+    --sidebar-primary-foreground: 240 15% 9%;
+    --sidebar-accent: 240 10% 18%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 240 10% 22%;
+    --sidebar-ring: 158 64% 52%;
   }
 }
 

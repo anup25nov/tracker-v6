@@ -28,7 +28,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
+          model: "google/gemini-2.5-pro",
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,
@@ -107,7 +107,7 @@ ${ctx.subjects.map((s) => `- **${s.name}**: ${s.completed}/${s.total} topics don
 `;
   }
 
-  return `You are **StudyBuddy**, a friendly AI study assistant for Indian competitive exam preparation (SSC, Railway, Bank exams).
+  return `You are **Exam Sathi**, a friendly AI study assistant for Indian competitive exam preparation (SSC, Railway, Bank exams).
 
 ## Your Personality
 - Warm, motivating like a helpful senior/mentor

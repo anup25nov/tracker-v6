@@ -1,27 +1,29 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sun, Moon, Phone, Save, Loader2, User as UserIcon, Mail, LogOut } from "lucide-react";
+import { ArrowLeft, Sun, Moon, Phone, Save, Loader2, User as UserIcon, Mail, LogOut, RotateCcw } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/hooks/useAuth";
 import { getCurrentUserProfile, firebaseSignOut } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import ProfileQuizSection from "@/components/ProfileQuizSection";
+import { useAppStore } from "@/store/useAppStore";
 
 interface ProfileScreenProps {
   onBack: () => void;
-  onStartQuiz?: (topicId: string, topicName: string, topicNameHi: string) => void;
 }
 
-const ProfileScreen = ({ onBack, onStartQuiz }: ProfileScreenProps) => {
+const ProfileScreen = ({ onBack }: ProfileScreenProps) => {
   const { language } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth();
+  const resetProgress = useAppStore((s) => s.resetProgress);
   const [userProfile, setUserProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [savedPhone, setSavedPhone] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
+  const [showReset, setShowReset] = useState(false);
   const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") !== "light");
 
   useEffect(() => {
@@ -166,13 +168,33 @@ const ProfileScreen = ({ onBack, onStartQuiz }: ProfileScreenProps) => {
         </button>
       </motion.div>
 
-      {/* Booster Quiz Section */}
-      <ProfileQuizSection
-        language={language}
-        onStartQuiz={(topicId, topicName, topicNameHi) => {
-          onStartQuiz?.(topicId, topicName, topicNameHi);
-        }}
-      />
+      {/* Reset Progress */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+        {!showReset ? (
+          <button
+            className="w-full rounded-2xl bg-destructive/5 border border-destructive/20 p-3.5 sm:p-4 flex items-center gap-3 active:bg-destructive/10 transition-colors"
+            onClick={() => setShowReset(true)}
+          >
+            <RotateCcw size={18} className="text-destructive" />
+            <span className="text-xs sm:text-sm font-medium text-destructive">{t("resetProgress")}</span>
+          </button>
+        ) : (
+          <div className="rounded-2xl bg-card border border-destructive/30 p-4 space-y-3">
+            <p className="text-xs sm:text-sm text-foreground">{t("resetConfirm")}</p>
+            <div className="flex gap-3">
+              <button className="flex-1 bg-secondary rounded-xl p-3 text-xs sm:text-sm font-medium text-foreground active:scale-95 transition-transform" onClick={() => setShowReset(false)}>
+                {t("cancel")}
+              </button>
+              <button
+                className="flex-1 bg-destructive rounded-xl p-3 text-xs sm:text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
+                onClick={() => { resetProgress(); setShowReset(false); }}
+              >
+                {t("reset")}
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
 
       {/* Logout */}
       {user && (

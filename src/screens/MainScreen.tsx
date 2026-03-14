@@ -7,9 +7,9 @@ import { allExams } from "@/data/syllabus";
 import { getSubjectColor } from "@/lib/subjectColors";
 import ProgressBar from "@/components/ProgressBar";
 import ProgressRing from "@/components/ProgressRing";
-import { ChevronRight, CheckCircle2, BookOpen, RotateCcw, ChevronDown, Copy, Share2, Bell, StickyNote } from "lucide-react";
+import { ChevronRight, CheckCircle2, BookOpen, ChevronDown, Copy, Share2, Bell, StickyNote, Zap } from "lucide-react";
 import SSCLogo from "@/components/SSCLogo";
-import { logScreenView, logExamSelected, getCurrentUserProfile } from "@/lib/firebase";
+import { logScreenView, logExamSelected } from "@/lib/firebase";
 import { useEffect } from "react";
 
 interface MainScreenProps {
@@ -20,6 +20,7 @@ interface MainScreenProps {
   onOpenMyQuizzes: () => void;
   onOpenReminders: () => void;
   onOpenNotes: () => void;
+  onOpenBoosterQuizzes: () => void;
 }
 
 const TelegramIcon = () => (
@@ -94,7 +95,7 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile, onOpenMyQuizzes, onOpenReminders, onOpenNotes }: MainScreenProps) => {
+const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile, onOpenMyQuizzes, onOpenReminders, onOpenNotes, onOpenBoosterQuizzes }: MainScreenProps) => {
   const { t, language } = useTranslation();
   const { user } = useAuth();
   const syllabus = useAppStore((s) => s.syllabus);
@@ -103,8 +104,6 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile, 
   const getSubjectUnits = useAppStore((s) => s.getSubjectUnits);
   const getOverallProgress = useAppStore((s) => s.getOverallProgress);
   const setLanguage = useAppStore((s) => s.setLanguage);
-  const resetProgress = useAppStore((s) => s.resetProgress);
-  const [showReset, setShowReset] = useState(false);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [userProfile, setUserProfile] = useState<{ displayName: string | null; email: string | null } | null>(null);
 
@@ -122,7 +121,8 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile, 
       setUserProfile(null);
       return;
     }
-    getCurrentUserProfile().then(setUserProfile);
+    // Only fetch display name initial for avatar, not full profile
+    setUserProfile({ displayName: user.displayName, email: user.email });
   }, [user?.uid]);
 
 
@@ -357,86 +357,26 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile, 
         </div>
       </motion.div>
 
-      {/* My Quizzes CTA */}
-      <motion.button
-        onClick={onOpenMyQuizzes}
-        className="w-full rounded-2xl p-4 flex items-center gap-3.5 active:scale-[0.98] transition-transform overflow-hidden relative"
-        style={{
-          background: "linear-gradient(135deg, hsl(280 73% 60% / 0.12), hsl(330 85% 55% / 0.08))",
-          border: "1px solid hsl(280 73% 60% / 0.25)",
-        }}
+      {/* 📚 Track Your Progress */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.12 }}
       >
-        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ background: "hsl(280 73% 60% / 0.15)" }}>
-          🧠
-        </div>
-        <div className="flex-1 text-left">
-          <h3 className="text-xs sm:text-sm font-bold text-foreground">
-            {language === "hi" ? "पर्सनलाइज़्ड क्विज़" : "Personalized Quizzes"}
-          </h3>
-          <p className="text-[10px] text-muted-foreground">
-            {language === "hi" ? "अपनी स्टडी मटीरियल से AI क्विज़ बनाएं" : "Generate AI quizzes from your study material"}
-          </p>
-        </div>
-        <ChevronRight size={16} className="text-muted-foreground shrink-0" />
-      </motion.button>
-
-      {/* Reminders & Notes Row */}
-      <motion.div
-        className="flex gap-2.5"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.13 }}
-      >
-        <button
-          onClick={onOpenReminders}
-          className="flex-1 rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform bg-card"
-          style={{ border: "1px solid hsl(var(--primary) / 0.25)" }}
-        >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ background: "hsl(var(--primary) / 0.12)" }}>
-            <Bell size={18} className="text-primary" />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <BookOpen size={14} className="text-primary" />
           </div>
-          <div className="text-left min-w-0">
-            <h3 className="text-xs font-bold text-foreground truncate">
-              {language === "hi" ? "रिमाइंडर" : "Reminders"}
-            </h3>
-            <p className="text-[9px] text-muted-foreground truncate">
-              {language === "hi" ? "समय पर याद दिलाएं" : "Set alerts"}
+          <div>
+            <h2 className="text-sm font-bold text-foreground">
+              {language === "hi" ? "📚 अपनी प्रगति ट्रैक करें" : "📚 Track Your Progress"}
+            </h2>
+            <p className="text-[10px] text-muted-foreground">
+              {language === "hi"
+                ? `${syllabus.length} विषय — टॉपिक पूरा करते जाएं`
+                : `${syllabus.length} subjects — complete topics one by one`}
             </p>
           </div>
-        </button>
-        <button
-          onClick={onOpenNotes}
-          className="flex-1 rounded-2xl p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform bg-card"
-          style={{ border: "1px solid hsl(38 92% 50% / 0.25)" }}
-        >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style={{ background: "hsl(38 92% 50% / 0.12)" }}>
-            <StickyNote size={18} style={{ color: "hsl(38 92% 50%)" }} />
-          </div>
-          <div className="text-left min-w-0">
-            <h3 className="text-xs font-bold text-foreground truncate">
-              {language === "hi" ? "शॉर्ट नोट्स" : "Short Notes"}
-            </h3>
-            <p className="text-[9px] text-muted-foreground truncate">
-              {language === "hi" ? "त्वरित रिवीज़न" : "Quick revision"}
-            </p>
-          </div>
-        </button>
-      </motion.div>
-
-      {/* Subjects List */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
-        <div className="flex items-center gap-1.5 mb-3">
-          <BookOpen size={14} className="text-primary" />
-          <h2 className="text-xs sm:text-sm font-bold text-foreground">
-            {t("subjects")} ({syllabus.length})
-          </h2>
         </div>
 
         <div className="space-y-2.5 sm:space-y-3">
@@ -494,6 +434,105 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile, 
         </div>
       </motion.div>
 
+      {/* 🛠️ Study Tools */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <h2 className="text-sm font-bold text-foreground">
+            {language === "hi" ? "🛠️ स्टडी टूल्स" : "🛠️ Study Tools"}
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* Booster Quiz */}
+          <button onClick={onOpenBoosterQuizzes} className="flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border active:scale-[0.97] transition-transform text-left">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(25 95% 53% / 0.12)" }}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M13 2L4.09 12.64a1 1 0 00.78 1.63H11l-1 7.27a.5.5 0 00.86.42L19.91 11.36a1 1 0 00-.78-1.63H13l1-7.27a.5.5 0 00-.86-.42z" fill="url(#boltGrad)" stroke="hsl(25 95% 53%)" strokeWidth="0.5"/>
+                <defs>
+                  <linearGradient id="boltGrad" x1="4" y1="2" x2="20" y2="22">
+                    <stop offset="0%" stopColor="hsl(38 100% 55%)" />
+                    <stop offset="100%" stopColor="hsl(15 90% 50%)" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{language === "hi" ? "बूस्टर क्विज़" : "Booster Quiz"}</p>
+              <p className="text-[9px] text-muted-foreground truncate">{language === "hi" ? "टॉपिक वाइज़ टेस्ट" : "Topic-wise test"}</p>
+            </div>
+          </button>
+          {/* AI Quiz */}
+          <button onClick={onOpenMyQuizzes} className="flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border active:scale-[0.97] transition-transform text-left">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(270 70% 55% / 0.12)" }}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5Z" fill="url(#aiQuizGrad)" />
+                <path d="M18 14L18.8 16.2L21 17L18.8 17.8L18 20L17.2 17.8L15 17L17.2 16.2Z" fill="url(#aiQuizGrad2)" opacity="0.8" />
+                <circle cx="7" cy="17" r="1.5" fill="hsl(270 70% 60%)" opacity="0.6" />
+                <defs>
+                  <linearGradient id="aiQuizGrad" x1="4" y1="2" x2="20" y2="18">
+                    <stop offset="0%" stopColor="hsl(280 80% 60%)" />
+                    <stop offset="100%" stopColor="hsl(250 70% 55%)" />
+                  </linearGradient>
+                  <linearGradient id="aiQuizGrad2" x1="15" y1="14" x2="21" y2="20">
+                    <stop offset="0%" stopColor="hsl(300 70% 60%)" />
+                    <stop offset="100%" stopColor="hsl(260 80% 55%)" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{language === "hi" ? "AI क्विज़" : "AI Quiz"}</p>
+              <p className="text-[9px] text-muted-foreground truncate">{language === "hi" ? "अपनी फाइल से" : "From your file"}</p>
+            </div>
+          </button>
+          {/* Reminders */}
+          <button onClick={onOpenReminders} className="flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border active:scale-[0.97] transition-transform text-left">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(158 64% 52% / 0.12)" }}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M12 2C10.34 2 9 3.34 9 5V5.29C6.61 6.15 5 8.39 5 11V16L3 18V19H21V18L19 16V11C19 8.39 17.39 6.15 15 5.29V5C15 3.34 13.66 2 12 2Z" fill="url(#bellGrad)" />
+                <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22Z" fill="hsl(45 95% 55%)" />
+                <circle cx="18" cy="5" r="3" fill="hsl(0 84% 60%)" stroke="hsl(var(--card))" strokeWidth="1.5" />
+                <defs>
+                  <linearGradient id="bellGrad" x1="3" y1="2" x2="21" y2="19">
+                    <stop offset="0%" stopColor="hsl(158 64% 52%)" />
+                    <stop offset="100%" stopColor="hsl(142 71% 45%)" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{language === "hi" ? "रिमाइंडर" : "Reminders"}</p>
+              <p className="text-[9px] text-muted-foreground truncate">{language === "hi" ? "पढ़ाई याद दिलाएं" : "Study alerts"}</p>
+            </div>
+          </button>
+          {/* Short Notes */}
+          <button onClick={onOpenNotes} className="flex items-center gap-3 p-3.5 rounded-2xl bg-card border border-border active:scale-[0.97] transition-transform text-left">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(38 92% 50% / 0.12)" }}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M4 4C4 2.9 4.9 2 6 2H14L20 8V20C20 21.1 19.1 22 18 22H6C4.9 22 4 21.1 4 20V4Z" fill="url(#noteGrad)" />
+                <path d="M14 2V8H20" fill="hsl(38 80% 45% / 0.3)" />
+                <line x1="8" y1="12" x2="16" y2="12" stroke="hsl(var(--card))" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+                <line x1="8" y1="15" x2="14" y2="15" stroke="hsl(var(--card))" strokeWidth="1.2" strokeLinecap="round" opacity="0.4" />
+                <line x1="8" y1="18" x2="12" y2="18" stroke="hsl(var(--card))" strokeWidth="1.2" strokeLinecap="round" opacity="0.3" />
+                <defs>
+                  <linearGradient id="noteGrad" x1="4" y1="2" x2="20" y2="22">
+                    <stop offset="0%" stopColor="hsl(45 95% 55%)" />
+                    <stop offset="100%" stopColor="hsl(25 90% 48%)" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-foreground truncate">{language === "hi" ? "नोट्स" : "Short Notes"}</p>
+              <p className="text-[9px] text-muted-foreground truncate">{language === "hi" ? "त्वरित रिवीज़न" : "Quick revision"}</p>
+            </div>
+          </button>
+        </div>
+      </motion.div>
+
       {/* Settings */}
       <motion.div
         className="rounded-2xl overflow-hidden bg-card border border-border"
@@ -538,36 +577,7 @@ const MainScreen = ({ onSelectSubject, onChangeExam, onOpenChat, onOpenProfile, 
         ))}
       </motion.div>
 
-      {/* Reset */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        {!showReset ? (
-          <button
-            className="w-full rounded-2xl bg-destructive/5 border border-destructive/20 p-3.5 sm:p-4 flex items-center gap-3 active:bg-destructive/10 transition-colors"
-            onClick={() => setShowReset(true)}
-          >
-            <RotateCcw size={18} className="text-destructive" />
-            <span className="text-xs sm:text-sm font-medium text-destructive">{t("resetProgress")}</span>
-          </button>
-        ) : (
-          <div className="rounded-2xl bg-card border border-destructive/30 p-4 space-y-3">
-            <p className="text-xs sm:text-sm text-foreground">{t("resetConfirm")}</p>
-            <div className="flex gap-3">
-              <button
-                className="flex-1 bg-secondary rounded-xl p-3 text-xs sm:text-sm font-medium text-foreground active:scale-95 transition-transform"
-                onClick={() => setShowReset(false)}
-              >
-                {t("cancel")}
-              </button>
-              <button
-                className="flex-1 bg-destructive rounded-xl p-3 text-xs sm:text-sm font-medium text-destructive-foreground active:scale-95 transition-transform"
-                onClick={() => { resetProgress(); setShowReset(false); }}
-              >
-                {t("reset")}
-              </button>
-            </div>
-          </div>
-        )}
-      </motion.div>
+      {/* Spacing for removed reset section */}
 
       {/* Share sheet */}
       {showShareSheet && (

@@ -28,10 +28,8 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
 
   const isHi = language === "hi";
 
-  const getMaxFileSizeBytes = (f: File) => {
-    if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) return 10 * 1024 * 1024; // 1MB
-    if (f.type.startsWith("image/") || /\.(png|jpg|jpeg|webp)$/i.test(f.name)) return 2 * 1024 * 1024; // 2MB
-    return 600 * 1024; // text/other supported files
+  const getMaxFileSizeBytes = (_f: File) => {
+    return 50 * 1024 * 1024; // 50MB for all file types
   };
 
   // Load remaining uploads
@@ -164,13 +162,23 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
       }
 
       // Save to Firestore
-      await savePersonalizedQuiz(
-        user.uid,
-        quizData.title || fileName.replace(/\.[^.]+$/, ""),
-        fileName,
-        quizType,
-        quizData.questions as PersonalizedQuizQuestion[]
-      );
+      console.log("[QuizUpload] Saving quiz to Firestore...", { title: quizData.title, questionsCount: quizData.questions.length });
+      try {
+        const savedId = await savePersonalizedQuiz(
+          user.uid,
+          quizData.title || fileName.replace(/\.[^.]+$/, ""),
+          fileName,
+          quizType,
+          quizData.questions as PersonalizedQuizQuestion[]
+        );
+        console.log("[QuizUpload] Quiz saved successfully with ID:", savedId);
+      } catch (saveErr: any) {
+        console.error("[QuizUpload] Failed to save quiz to Firestore:", saveErr);
+        // Still show success for generation but warn about save
+        toast.error(isHi ? "क्विज़ बनी लेकिन सेव नहीं हुई। दोबारा कोशिश करें।" : "Quiz generated but failed to save. Please try again.");
+        setError(saveErr?.message || "Failed to save quiz");
+        return;
+      }
 
       toast.success(isHi ? "क्विज़ बन गई! 🎉" : "Quiz generated! 🎉");
       onQuizGenerated();
@@ -281,7 +289,7 @@ const PersonalizedQuizUploadScreen = ({ onBack, onQuizGenerated }: Props) => {
                   {isHi ? "PDF, इमेज या टेक्स्ट फ़ाइल चुनें" : "Select PDF, Image or Text file"}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  {isHi ? "इमेज 2MB • PDF 1MB • टेक्स्ट 600KB" : "Image 2MB • PDF 1MB • Text 600KB"}
+                  {isHi ? "अधिकतम 50MB" : "Max 50MB"}
                 </p>
               </>
             )}

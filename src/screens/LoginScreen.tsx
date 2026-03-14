@@ -131,6 +131,17 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
               {error}
             </motion.p>
           )}
+
+          {/* Skip Login */}
+          <button
+            onClick={() => {
+              localStorage.setItem("skippedLogin", "true");
+              onLoginSuccess();
+            }}
+            className="w-full py-3 text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+          >
+            {language === "hi" ? "अभी छोड़ें →" : "Skip for now →"}
+          </button>
         </motion.div>
       </motion.div>
     </div>

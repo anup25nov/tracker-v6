@@ -7,9 +7,9 @@ const corsHeaders = {
 };
 
 const MAX_INPUT_BYTES = {
-  image: 2 * 1024 * 1024, // 2MB
-  pdf: 10 * 1024 * 1024, // 1MB
-  text: 600 * 1024, // 600KB
+  image: 50 * 1024 * 1024, // 50MB
+  pdf: 50 * 1024 * 1024, // 50MB
+  text: 50 * 1024 * 1024, // 50MB
 };
 
 const MAX_TEXT_CHARS = 12000;

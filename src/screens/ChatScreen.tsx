@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Send,
-  Sparkles,
   Trash2,
   StopCircle,
   BookOpen,
   Brain,
   HelpCircle,
   Zap,
+  Bot,
+  GraduationCap,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useChatStream, ChatMessage, getRemainingChats } from "@/hooks/useChatStream";
@@ -21,7 +22,6 @@ interface ChatScreenProps {
   onBack: () => void;
 }
 
-// Quick action chips
 const quickActions = [
   { icon: Brain, label: "What are my weak areas?", labelHi: "मेरे कमज़ोर विषय कौन से हैं?" },
   { icon: BookOpen, label: "What should I study next?", labelHi: "मुझे आगे क्या पढ़ना चाहिए?" },
@@ -29,25 +29,15 @@ const quickActions = [
   { icon: Zap, label: "Study tips for my exam", labelHi: "मेरी परीक्षा के लिए टिप्स" },
 ];
 
-/**
- * Extract suggested questions from AI response and return cleaned content + suggestions.
- * Looks for the pattern: 💡 **You can ask:** followed by numbered questions.
- */
 function extractSuggestions(content: string): { cleanContent: string; suggestions: string[] } {
   const suggestions: string[] = [];
-  
-  // Match the suggestions block at the end
   const suggestionsRegex = /💡\s*\*{0,2}You can ask:?\*{0,2}[\s\S]*?(?:\n\s*\d+\.\s*.+)+/gi;
   const suggestionsRegexHi = /💡\s*\*{0,2}आप पूछ सकते हैं:?\*{0,2}[\s\S]*?(?:\n\s*\d+\.\s*.+)+/gi;
-  
   let cleanContent = content;
-  
   const match = content.match(suggestionsRegex) || content.match(suggestionsRegexHi);
   if (match) {
-    const block = match[match.length - 1]; // Take last match
+    const block = match[match.length - 1];
     cleanContent = content.replace(block, "").trim();
-    
-    // Extract individual questions
     const questionRegex = /\d+\.\s*(.+)/g;
     let qMatch;
     while ((qMatch = questionRegex.exec(block)) !== null) {
@@ -55,13 +45,11 @@ function extractSuggestions(content: string): { cleanContent: string; suggestion
       if (q.length > 5) suggestions.push(q);
     }
   }
-  
   return { cleanContent, suggestions };
 }
 
-// Memoized message bubble
-const MessageBubble = memo(({ message, isLast, onSuggestionClick }: { 
-  message: ChatMessage; 
+const MessageBubble = memo(({ message, isLast, onSuggestionClick }: {
+  message: ChatMessage;
   isLast: boolean;
   onSuggestionClick: (text: string) => void;
 }) => {
@@ -80,8 +68,8 @@ const MessageBubble = memo(({ message, isLast, onSuggestionClick }: {
         className={`flex ${isUser ? "justify-end" : "justify-start"}`}
       >
         {!isUser && (
-          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center mr-2 mt-1 shrink-0">
-            <Sparkles size={14} className="text-primary" />
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mr-2 mt-1 shrink-0">
+            <GraduationCap size={14} className="text-primary" />
           </div>
         )}
         <div
@@ -107,7 +95,6 @@ const MessageBubble = memo(({ message, isLast, onSuggestionClick }: {
         </div>
       </motion.div>
 
-      {/* Suggested questions as clickable chips - only on last assistant message */}
       {!isUser && isLast && suggestions.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 6 }}
@@ -149,14 +136,12 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll on new messages
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Build user context from store
   const buildContext = useCallback(() => {
     const overall = getOverallProgress();
     const subjects = syllabus.map((s) => {
@@ -180,7 +165,6 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
         incompletTopics,
       };
     });
-
     return {
       userName: user?.displayName || "Student",
       examName: selectedExamId || "Unknown",
@@ -219,28 +203,24 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
     <div className="h-screen flex flex-col bg-background max-w-lg mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card/80 backdrop-blur-sm">
-        <button
-          onClick={onBack}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-secondary active:scale-95 transition-transform"
-        >
+        <button onClick={onBack} className="w-9 h-9 flex items-center justify-center rounded-xl bg-secondary active:scale-95 transition-transform">
           <ArrowLeft size={18} className="text-foreground" />
         </button>
         <div className="flex items-center gap-2 flex-1">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-            <Sparkles size={16} className="text-primary-foreground" />
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <GraduationCap size={16} className="text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-foreground">StudyBuddy AI</h1>
+            <h1 className="text-sm font-bold text-foreground">Exam Sathi AI</h1>
             <p className="text-[10px] text-muted-foreground">
-              {isStreaming ? (language === "hi" ? "टाइप कर रहा है..." : "Typing...") : `${remaining} ${language === "hi" ? "चैट बाकी" : "chats left today"}`}
+              {isStreaming
+                ? (language === "hi" ? "टाइप कर रहा है..." : "Typing...")
+                : `${remaining} ${language === "hi" ? "चैट बाकी" : "chats left today"}`}
             </p>
           </div>
         </div>
         {messages.length > 0 && (
-          <button
-            onClick={clearChat}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive transition-colors"
-          >
+          <button onClick={clearChat} className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-destructive transition-colors">
             <Trash2 size={16} />
           </button>
         )}
@@ -249,33 +229,27 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         {isEmpty ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center h-full gap-5"
-          >
-            {/* Hero */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center justify-center h-full gap-5">
             <div className="relative">
-              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <Sparkles size={36} className="text-primary" />
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center">
+                <GraduationCap size={36} className="text-primary" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-success flex items-center justify-center">
-                <Zap size={12} className="text-success-foreground" />
+                <Bot size={12} className="text-success-foreground" />
               </div>
             </div>
 
             <div className="text-center space-y-1.5">
               <h2 className="text-lg font-bold text-foreground">
-                {language === "hi" ? "नमस्ते! 👋" : "Hey there! 👋"}
+                {language === "hi" ? "नमस्ते! 👋 मैं Exam Sathi हूँ" : "Hey! 👋 I'm Exam Sathi"}
               </h2>
-              <p className="text-xs text-muted-foreground max-w-[250px]">
+              <p className="text-xs text-muted-foreground max-w-[260px]">
                 {language === "hi"
-                  ? "मैं आपका AI स्टडी पार्टनर हूँ। पूछिए कुछ भी!"
-                  : "I'm your AI study partner. Ask me anything about your preparation!"}
+                  ? "आपका AI स्टडी पार्टनर। परीक्षा की तैयारी में कुछ भी पूछें!"
+                  : "Your AI study partner. Ask me anything about your exam prep!"}
               </p>
             </div>
 
-            {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-2 w-full max-w-sm px-2">
               {quickActions.map((action, i) => (
                 <motion.button
@@ -308,11 +282,7 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
         )}
 
         {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mx-auto max-w-[80%] text-center text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-[80%] text-center text-xs text-destructive bg-destructive/10 rounded-lg px-3 py-2">
             {error}
           </motion.div>
         )}
@@ -331,18 +301,11 @@ const ChatScreen = ({ onBack }: ChatScreenProps) => {
             disabled={isStreaming}
           />
           {isStreaming ? (
-            <button
-              onClick={stopStreaming}
-              className="w-10 h-10 rounded-xl bg-destructive/15 flex items-center justify-center active:scale-95 transition-transform"
-            >
+            <button onClick={stopStreaming} className="w-10 h-10 rounded-xl bg-destructive/15 flex items-center justify-center active:scale-95 transition-transform">
               <StopCircle size={20} className="text-destructive" />
             </button>
           ) : (
-            <button
-              onClick={handleSend}
-              disabled={!input.trim()}
-              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40"
-            >
+            <button onClick={handleSend} disabled={!input.trim()} className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center active:scale-95 transition-transform disabled:opacity-40">
               <Send size={18} className="text-primary-foreground" />
             </button>
           )}
